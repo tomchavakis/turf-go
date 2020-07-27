@@ -1,6 +1,9 @@
 package turf
 
-import "math"
+import (
+	"github.com/tomchavakis/turf-go/geometry"
+	"math"
+)
 
 // Distance calculates the distance between two points in kilometers. This uses the Haversine formula
 func Distance(lon1 float64, lat1 float64, lon2 float64, lat2 float64) float64 {
@@ -17,7 +20,7 @@ func Distance(lon1 float64, lat1 float64, lon2 float64, lat2 float64) float64 {
 }
 
 // PointDistance calculates the distance between two points
-func PointDistance(p1 Point, p2 Point) float64 {
+func PointDistance(p1 geometry.Point, p2 geometry.Point) float64 {
 	return Distance(p1.Lng, p1.Lat, p2.Lng, p2.Lat)
 }
 
@@ -45,12 +48,12 @@ func Bearing(lon1 float64, lat1 float64, lon2 float64, lat2 float64) float64 {
 }
 
 // PointBearing finds the geographic bearing between two points.
-func PointBearing(p1 Point, p2 Point) float64 {
+func PointBearing(p1 geometry.Point, p2 geometry.Point) float64 {
 	return Bearing(p1.Lng, p1.Lat, p2.Lng, p2.Lat)
 }
 
 // MidPoint finds the point midway between them.
-func MidPoint(p1 Point, p2 Point) Point {
+func MidPoint(p1 geometry.Point, p2 geometry.Point) geometry.Point {
 	dLon := DegreesToRadians(p2.Lng - p1.Lng)
 	lat1R := DegreesToRadians(p1.Lat)
 	lon1R := DegreesToRadians(p1.Lng)
@@ -60,18 +63,18 @@ func MidPoint(p1 Point, p2 Point) Point {
 	midLat := math.Atan2(math.Sin(lat1R)+math.Sin(lat2R), math.Sqrt((math.Cos(lat1R)+Bx)*(math.Cos(lat1R)+Bx)+By*By))
 	midLng := lon1R + math.Atan2(By, math.Cos(lat1R)+Bx)
 
-	return Point{Lat: RadiansToDegrees(midLat), Lng: RadiansToDegrees(midLng)}
+	return geometry.Point{Lat: RadiansToDegrees(midLat), Lng: RadiansToDegrees(midLng)}
 }
 
 // X --> Lon
 // Y --> Lat
 // Destination returns a destination point according to a reference point, a distance in km and a bearing in degrees from True North.
-func Destination(p1 Point, distance float64, bearing float64) Point {
+func Destination(p1 geometry.Point, distance float64, bearing float64) geometry.Point {
 	lonR := DegreesToRadians(p1.Lng)
 	latR := DegreesToRadians(p1.Lat)
 	bR := DegreesToRadians(bearing)
 	dLat := math.Asin(math.Sin(latR)*math.Cos(distance/EarthRadius) + math.Cos(latR)*math.Sin(distance/EarthRadius)*math.Cos(bR))
 	dLng := lonR + math.Atan2(math.Sin(bR)*math.Sin(distance/EarthRadius)*math.Cos(latR), math.Cos(distance/EarthRadius)-math.Sin(latR)*math.Sin(dLat))
 
-	return Point{Lat: RadiansToDegrees(dLat), Lng: RadiansToDegrees(dLng)}
+	return geometry.Point{Lat: RadiansToDegrees(dLat), Lng: RadiansToDegrees(dLng)}
 }
