@@ -15,9 +15,9 @@ func TestDistance(t *testing.T) {
 }
 
 func TestPointDistance(t *testing.T) {
-	p1 := Point{Lng: -77.03653, Lat: 38.89768}
-	p2 := Point{Lng: -77.05173, Lat: 38.8973}
-	d := DistancePoint(p1, p2)
+	p1 := geometry.Point{Lng: -77.03653, Lat: 38.89768}
+	p2 := geometry.Point{Lng: -77.05173, Lat: 38.8973}
+	d := PointDistance(p1, p2)
 	assert.Equal(t, d, 1.317556974720262, "error calculating the distance")
 }
 
