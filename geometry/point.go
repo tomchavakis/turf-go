@@ -1,6 +1,6 @@
 package geometry
 
-// Point represents a geolocation using ESPG-900913/(ESPG-3875) Projection
+// Point represents a geolocation in a specific latitude and longtitude
 type Point struct {
 	Lat float64
 	Lng float64
