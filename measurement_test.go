@@ -2,24 +2,23 @@ package turf
 
 import (
 	"fmt"
-	"github.com/tomchavakis/turf-go/geometry"
 	"testing"
+
+	"github.com/tomchavakis/turf-go/geometry"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDistance(t *testing.T) {
 	d := Distance(-77.03653, 38.89768, -77.05173, 38.8973)
-	if d != 1.317556974720262 {
-		t.Errorf("error calculating the distance")
-	}
+	assert.Equal(t, d, 1.317556974720262, "error calculating the distance")
 }
 
 func TestPointDistance(t *testing.T) {
 	p1 := geometry.Point{Lng: -77.03653, Lat: 38.89768}
 	p2 := geometry.Point{Lng: -77.05173, Lat: 38.8973}
 	d := PointDistance(p1, p2)
-	if d != 1.317556974720262 {
-		t.Errorf("error calculating the distance")
-	}
+	assert.Equal(t, d, 1.317556974720262, "error calculating the distance")
 }
 
 func TestBearing(t *testing.T) {
