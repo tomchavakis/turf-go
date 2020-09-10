@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tomchavakis/turf-go/geometry"
+	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
 func TestNearestPoint(t *testing.T) {
