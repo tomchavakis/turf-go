@@ -1,7 +1,7 @@
 package turf
 
 import (
-	"github.com/tomchavakis/turf-go/geometry"
+	"github.com/tomchavakis/turf-go/geojson/geometry"
 	"math"
 )
 

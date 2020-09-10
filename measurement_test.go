@@ -1,10 +1,9 @@
 package turf
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/tomchavakis/turf-go/geometry"
+	"github.com/tomchavakis/turf-go/geojson/geometry"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -23,19 +22,14 @@ func TestPointDistance(t *testing.T) {
 
 func TestBearing(t *testing.T) {
 	b := Bearing(-77.03653, 38.89768, -77.05173, 38.8973)
-	fmt.Printf("bearing: %v", b)
-	if b <= 0 {
-		t.Errorf("error calculating the bearing")
-	}
+	assert.Equal(t,b,268.16492117999513,"error calculating the bearing")
 }
 
 func TestPointBearing(t *testing.T) {
 	p1 := geometry.Point{Lng: -77.03653, Lat: 38.89768}
 	p2 := geometry.Point{Lng: -77.05173, Lat: 38.8973}
 	b := PointBearing(p1, p2)
-	if b < 0 {
-		t.Errorf("error calculating the bearing")
-	}
+	assert.Equal(t,b,268.16492117999513,"error calculating the point bearing")
 }
 
 func TestMidPoint(t *testing.T) {
@@ -71,7 +65,6 @@ func TestMidPoint(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			m := MidPoint(tt.args.p1, tt.args.p2)
-			fmt.Printf("midPoint %v", m)
 			if tt.want != m {
 				t.Errorf("error calculating the midpoint")
 				return
@@ -84,8 +77,6 @@ func TestMidPoint(t *testing.T) {
 func TestDestinationPoint(t *testing.T) {
 	p := geometry.Point{Lat: 23.34, Lng: 43.25}
 	d := Destination(p, 10, 230)
-	fmt.Printf("destination point: %v", d)
-
 	e := geometry.Point{Lat: 23.28223959663299, Lng: 43.175084627817945}
 
 	if e.Lat != d.Lat && e.Lng != d.Lng {
@@ -93,3 +84,4 @@ func TestDestinationPoint(t *testing.T) {
 	}
 
 }
+
