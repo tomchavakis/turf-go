@@ -1,6 +1,8 @@
 package turf
 
-import "math"
+import (
+	"math"
+)
 
 // DegreesToRadians converts an angle in degrees to radians.
 // degrees angle between 0 and 360
