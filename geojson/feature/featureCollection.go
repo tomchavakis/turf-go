@@ -1,11 +1,11 @@
 package feature
 
-// FeatureCollection type
-type FeatureCollection struct {
-	geometries []Feature
+// Collection type
+type Collection struct {
+	features []Feature
 }
 
-// NewGeometryCollection initializes a new instance of FeatureCollection
-func NewFeatureCollection(geometries []Feature) (*FeatureCollection, error) {
-	return &FeatureCollection{},nil
+// NewFeatureCollection initializes a new instance of Collection
+func NewFeatureCollection(geometries []Feature) (*Collection, error) {
+	return &Collection{}, nil
 }

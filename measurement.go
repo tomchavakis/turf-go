@@ -66,8 +66,6 @@ func MidPoint(p1 geometry.Point, p2 geometry.Point) geometry.Point {
 	return geometry.Point{Lat: RadiansToDegrees(midLat), Lng: RadiansToDegrees(midLng)}
 }
 
-// X --> Lon
-// Y --> Lat
 // Destination returns a destination point according to a reference point, a distance in km and a bearing in degrees from True North.
 func Destination(p1 geometry.Point, distance float64, bearing float64) geometry.Point {
 	lonR := DegreesToRadians(p1.Lng)

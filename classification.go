@@ -3,7 +3,6 @@ package turf
 import (
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 	"math"
-
 )
 
 // NearestPoint takes a reference point and a list of points and returns the point from the point list closest to the reference.
