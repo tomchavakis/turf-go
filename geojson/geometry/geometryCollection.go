@@ -1,13 +1,12 @@
 package geometry
 
-
-// GeometryCollection type
+// Collection type
 // https://tools.ietf.org/html/rfc7946#section-3.1.8
-type GeometryCollection struct {
-	geometries []GeometryObject
+type Collection struct {
+	geometries []Object
 }
 
 // NewGeometryCollection initializes a new instance of GeometryCollection
-func NewGeometryCollection(geometries []GeometryObject) (*GeometryCollection, error) {
-	return &GeometryCollection{},nil
+func NewGeometryCollection(geometries []Collection) (*Collection, error) {
+	return &Collection{}, nil
 }

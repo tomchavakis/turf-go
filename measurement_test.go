@@ -22,14 +22,14 @@ func TestPointDistance(t *testing.T) {
 
 func TestBearing(t *testing.T) {
 	b := Bearing(-77.03653, 38.89768, -77.05173, 38.8973)
-	assert.Equal(t,b,268.16492117999513,"error calculating the bearing")
+	assert.Equal(t, b, 268.16492117999513, "error calculating the bearing")
 }
 
 func TestPointBearing(t *testing.T) {
 	p1 := geometry.Point{Lng: -77.03653, Lat: 38.89768}
 	p2 := geometry.Point{Lng: -77.05173, Lat: 38.8973}
 	b := PointBearing(p1, p2)
-	assert.Equal(t,b,268.16492117999513,"error calculating the point bearing")
+	assert.Equal(t, b, 268.16492117999513, "error calculating the point bearing")
 }
 
 func TestMidPoint(t *testing.T) {
@@ -84,4 +84,3 @@ func TestDestinationPoint(t *testing.T) {
 	}
 
 }
-
