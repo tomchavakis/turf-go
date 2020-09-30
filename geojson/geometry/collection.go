@@ -7,6 +7,6 @@ type Collection struct {
 }
 
 // NewGeometryCollection initializes a new instance of GeometryCollection
-func NewGeometryCollection(geometries []Collection) (*Collection, error) {
-	return &Collection{}, nil
+func NewGeometryCollection(geometries []Object) (*Collection, error) {
+	return &Collection{geometries: geometries}, nil
 }

@@ -6,6 +6,6 @@ type Collection struct {
 }
 
 // NewFeatureCollection initializes a new instance of Collection
-func NewFeatureCollection(geometries []Feature) (*Collection, error) {
-	return &Collection{}, nil
+func NewFeatureCollection(features []Feature) (*Collection, error) {
+	return &Collection{features: features}, nil
 }
