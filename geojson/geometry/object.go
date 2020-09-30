@@ -1,8 +1,10 @@
 package geometry
 
-import "github.com/tomchavakis/turf-go/geojson"
+import (
+	"github.com/tomchavakis/turf-go/geojson/object"
+)
 
 // Object is the base interface for GeometryObject types
 type Object struct {
-	Type geojson.ObjectType
+	Type object.Type
 }

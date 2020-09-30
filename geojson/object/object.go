@@ -1,6 +1,8 @@
-package geojson
+package object
 
-import "github.com/tomchavakis/turf-go/geojson/crs"
+import (
+	"github.com/tomchavakis/turf-go/geojson/crs"
+)
 
 // Object type
 type Object struct {
@@ -10,7 +12,7 @@ type Object struct {
 	//   followed by all axes of the more northeasterly point.  The axes order
 	//   of a bbox follows the axes order of geometries.
 	// https://tools.ietf.org/html/rfc7946#section-5
-	BBox []float64
-	CRS  crs.Object
-	Type ObjectType
+	BBox       []float64
+	CRS        crs.Object
+	ObjectType Type
 }
