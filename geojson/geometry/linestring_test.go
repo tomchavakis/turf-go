@@ -43,7 +43,7 @@ func TestNewLineString(t *testing.T) {
 			args: args{
 				coordinates: coords,
 			},
-			want:    &LineString{coordinates: coords},
+			want:    &LineString{Coordinates: coords},
 			wantErr: false,
 		},
 	}
@@ -130,7 +130,7 @@ func TestLineString_IsClosed(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			l := LineString{
-				coordinates: tt.fields.coordinates,
+				Coordinates: tt.fields.coordinates,
 			}
 			if got := l.IsClosed(); got != tt.want {
 				t.Errorf("IsClosed() = %v, want %v", got, tt.want)
@@ -202,7 +202,7 @@ func TestLineString_IsLinearRing(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			l := LineString{
-				coordinates: tt.fields.coordinates,
+				Coordinates: tt.fields.coordinates,
 			}
 			if got := l.IsLinearRing(); got != tt.want {
 				t.Errorf("IsLinearRing() = %v, want %v", got, tt.want)

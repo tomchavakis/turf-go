@@ -5,7 +5,7 @@ import "errors"
 // Polygon defines a polygon type
 // https://tools.ietf.org/html/rfc7946#section-3.1.6
 type Polygon struct {
-	coordinates []LineString
+	Coordinates []LineString
 }
 
 // NewPolygon initializes a new instance of a Polygon
@@ -22,5 +22,5 @@ func NewPolygon(coordinates []LineString) (*Polygon, error) {
 		}
 	}
 
-	return &Polygon{coordinates: coordinates}, nil
+	return &Polygon{Coordinates: coordinates}, nil
 }
