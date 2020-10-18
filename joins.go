@@ -1,0 +1,75 @@
+package turf
+
+import (
+	"github.com/tomchavakis/turf-go/geojson/geometry"
+)
+
+// PointInPolygon takes a Point and a Polygon and determines if the point resides inside the polygon
+func PointInPolygon(point geometry.Point, polygon geometry.Polygon) (bool, error) {
+
+	pArr := []geometry.Polygon{}
+	pArr = append(pArr, polygon)
+
+	mp, err := geometry.NewMultiPolygon(pArr)
+	if err != nil {
+		return false, err
+	}
+
+	return PointInMultiPolygon(point, *mp), nil
+}
+
+// PointInMultiPolygon takes a Point and a MultiPolygon and determines if the point resides inside the polygon
+func PointInMultiPolygon(p geometry.Point, mp geometry.MultiPolygon) bool {
+
+	insidePoly := false
+	polys := mp.Coordinates
+
+	for i := 0; i < len(polys) && !insidePoly; i++ {
+		//check if it is in the outer ring first
+		if inRing(p, polys[i].Coordinates[0].Coordinates) {
+			inHole := false
+			temp := 1
+			// check for the point in any of the holes
+			for temp < len(polys[i].Coordinates) && !inHole {
+				if inRing(p, polys[i].Coordinates[temp].Coordinates) {
+					inHole = true
+				}
+				temp++
+			}
+			if !inHole {
+				insidePoly = true
+			}
+		}
+	}
+
+	return insidePoly
+}
+
+// optionally
+func inBBOX(pt geometry.Point, bbox geometry.BBOX) bool {
+	return bbox.West <= pt.Lng &&
+		bbox.South <= pt.Lat &&
+		bbox.East >= pt.Lng &&
+		bbox.North >= pt.Lat
+}
+
+func inRing(pt geometry.Point, ring []geometry.Position) bool {
+
+	isInside := false
+
+	for i := 0; i < len(ring); i++ {
+		j := len(ring) - 1
+
+		xi := ring[i].Longitude
+		yi := ring[i].Latitude
+		xj := ring[j].Longitude
+		yj := ring[j].Latitude
+
+		intersect := (yi > pt.Lat) != (yj > pt.Lat) && (pt.Lng < (xj-xi)*(pt.Lat-yi)/(yj-yi)+xi)
+
+		if intersect {
+			isInside = !isInside
+		}
+	}
+	return isInside
+}
