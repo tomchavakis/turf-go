@@ -1,6 +1,10 @@
 {
   "type": "Feature",
-  "properties": {},
+  "properties": {
+    "name": "Poly with Hole",
+    "value": 3,
+    "filename": "poly-with-hole.json"
+  },
   "bbox": [
     -86.77362442016602,
     36.170862616662134,

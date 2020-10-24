@@ -9,5 +9,5 @@ import (
 type Geometry struct {
 	// GeoJSONType describes the type of GeoJSON Geometry, Feature or FeatureCollection this object is.
 	GeoJSONType geojson.OBjectType `json:"type"`
-	Coordinates [][][]float64      `json:"coordinates"`
+	Coordinates interface{}        `json:"coordinates"`
 }
