@@ -1,25 +1,25 @@
-package object
+package geojson
 
-// Type is the base class for all GeometryObjects
-type Type string
+// OBjectType is the base class for all GeometryObjects
+type OBjectType string
 
 const (
 	// Point Defines a Point Type https://tools.ietf.org/html/rfc7946#section-3.1.2
-	Point Type = "Point"
+	Point OBjectType = "Point"
 	// MultiPoint Defines a MultiPoint Type https://tools.ietf.org/html/rfc7946#section-3.1.3
-	MultiPoint Type = "MultiPoint"
+	MultiPoint OBjectType = "MultiPoint"
 	// LineString Defines a LineString Type https://tools.ietf.org/html/rfc7946#section-3.1.4
-	LineString Type = "LineString"
+	LineString OBjectType = "LineString"
 	// MiltiLineString Defines a MultiLineString Type https://tools.ietf.org/html/rfc7946#section-3.1.5
-	MiltiLineString Type = "MultiLineString"
+	MiltiLineString OBjectType = "MultiLineString"
 	// Polygon Defines a Polygon Type https://tools.ietf.org/html/rfc7946#section-3.1.6
-	Polygon Type = "Polygon"
+	Polygon OBjectType = "Polygon"
 	// MultiPolygon Defines a MultiPolygon Type https://tools.ietf.org/html/rfc7946#section-3.1.7
-	MultiPolygon Type = "MultiPolygon"
+	MultiPolygon OBjectType = "MultiPolygon"
 	// GeometryCollection Defines a GeometryCollection Type https://tools.ietf.org/html/rfc7946#section-3.1.8
-	GeometryCollection Type = "GeometryCollection"
+	GeometryCollection OBjectType = "GeometryCollection"
 	// Feature Defines a Feature Type https://tools.ietf.org/html/rfc7946#section-3.2
-	Feature Type = "Feature"
+	Feature OBjectType = "Feature"
 	// FeatureCollection Defines a FeatureCollection Type https://tools.ietf.org/html/rfc7946#section-3.3
-	FeatureCollection Type = "FeatureCollection"
+	FeatureCollection OBjectType = "FeatureCollection"
 )

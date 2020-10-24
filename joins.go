@@ -46,19 +46,18 @@ func PointInMultiPolygon(p geometry.Point, mp geometry.MultiPolygon) bool {
 }
 
 // optionally
-func inBBOX(pt geometry.Point, bbox geometry.BBOX) bool {
-	return bbox.West <= pt.Lng &&
-		bbox.South <= pt.Lat &&
-		bbox.East >= pt.Lng &&
-		bbox.North >= pt.Lat
-}
+// func inBBOX(pt geometry.Point, bbox geometry.BBOX) bool {
+// 	return bbox.West <= pt.Lng &&
+// 		bbox.South <= pt.Lat &&
+// 		bbox.East >= pt.Lng &&
+// 		bbox.North >= pt.Lat
+// }
 
 func inRing(pt geometry.Point, ring []geometry.Position) bool {
 
 	isInside := false
-
+	j := 0
 	for i := 0; i < len(ring); i++ {
-		j := len(ring) - 1
 
 		xi := ring[i].Longitude
 		yi := ring[i].Latitude
@@ -70,6 +69,8 @@ func inRing(pt geometry.Point, ring []geometry.Position) bool {
 		if intersect {
 			isInside = !isInside
 		}
+
+		j = i
 	}
 	return isInside
 }
