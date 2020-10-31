@@ -4,7 +4,7 @@ import "io/ioutil"
 
 // LoadJSONFixture loads a testing file
 func LoadJSONFixture(filename string) (string, error) {
-	filepath := "test-data/" + filename
+	filepath := filename
 
 	b, err := ioutil.ReadFile(filepath)
 	if err != nil {

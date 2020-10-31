@@ -1,4 +1,4 @@
-package turf
+package classification
 
 import (
 	"testing"

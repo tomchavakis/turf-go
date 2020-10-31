@@ -1,4 +1,4 @@
-package turf
+package constants
 
 const (
 	// UnitMiles is an English unit of length of linear measure equal to 5.280 feet, or 1.760 yards, and standardised as exactly 1,609.344 meters by international agreement in 1959.

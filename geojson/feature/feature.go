@@ -55,7 +55,7 @@ func FromJSON(gjson string) (*Feature, error) {
 
 }
 
-// ToPolygon converts a Polygon Feature to Polygon geometry
+// ToPolygon converts a Polygon Feature to Polygon geometry.
 func (f *Feature) ToPolygon() (*geometry.Polygon, error) {
 	if f.Geometry.GeoJSONType != geojson.Polygon {
 		return nil, errors.New("the feature must be a polygon")
@@ -73,12 +73,11 @@ func (f *Feature) ToPolygon() (*geometry.Polygon, error) {
 	}
 
 	for i := 0; i < len(polygonCoordinates); i++ {
-		var posArray = []geometry.Position{}
+		var posArray = []geometry.Point{}
 		for j := 0; j < len(polygonCoordinates[i]); j++ {
-			pos := geometry.Position{
-				Altitude:  nil,
-				Longitude: polygonCoordinates[i][j][0],
-				Latitude:  polygonCoordinates[i][j][1],
+			pos := geometry.Point{
+				Lng: polygonCoordinates[i][j][0],
+				Lat: polygonCoordinates[i][j][1],
 			}
 			posArray = append(posArray, pos)
 		}
@@ -95,7 +94,7 @@ func (f *Feature) ToPolygon() (*geometry.Polygon, error) {
 
 }
 
-// ToMultiPolygon converts a MultiPolygon Feature to MultiPolygon geometry
+// ToMultiPolygon converts a MultiPolygon Feature to MultiPolygon geometry.
 func (f *Feature) ToMultiPolygon() (*geometry.MultiPolygon, error) {
 	if f.Geometry.GeoJSONType != geojson.MultiPolygon {
 		return nil, errors.New("the feature must be a multiPolygon")
@@ -115,12 +114,11 @@ func (f *Feature) ToMultiPolygon() (*geometry.MultiPolygon, error) {
 	for k := 0; k < len(multiPolygonCoordinates); k++ {
 		var coords = []geometry.LineString{}
 		for i := 0; i < len(multiPolygonCoordinates[k]); i++ {
-			var posArray = []geometry.Position{}
+			var posArray = []geometry.Point{}
 			for j := 0; j < len(multiPolygonCoordinates[k][i]); j++ {
-				pos := geometry.Position{
-					Altitude:  nil,
-					Longitude: multiPolygonCoordinates[k][i][j][0],
-					Latitude:  multiPolygonCoordinates[k][i][j][1],
+				pos := geometry.Point{
+					Lng: multiPolygonCoordinates[k][i][j][0],
+					Lat: multiPolygonCoordinates[k][i][j][1],
 				}
 				posArray = append(posArray, pos)
 			}
@@ -142,4 +140,72 @@ func (f *Feature) ToMultiPolygon() (*geometry.MultiPolygon, error) {
 	return poly, nil
 }
 
-//TODO: Add ToPolyLine etc...
+// ToLineString converts a ToLineString Feature to ToLineString geometry.
+func (f *Feature) ToLineString() (*geometry.LineString, error) {
+	if f.Geometry.GeoJSONType != geojson.LineString {
+		return nil, errors.New("the feature must be a linestring")
+	}
+
+	var coords [][]float64
+	ccc, err := json.Marshal(f.Geometry.Coordinates)
+	if err != nil {
+		return nil, errors.New("cannot marshal object")
+	}
+	err = json.Unmarshal(ccc, &coords)
+	if err != nil {
+		return nil, errors.New("cannot marshal object")
+	}
+
+	var coordinates []geometry.Point
+	for _, coord := range coords {
+		p := geometry.Point{
+			Lat: coord[1],
+			Lng: coord[0],
+		}
+		coordinates = append(coordinates, p)
+	}
+
+	lineString, err := geometry.NewLineString(coordinates)
+	if err != nil {
+		return nil, errors.New("cannot creat a new polygon")
+	}
+	return lineString, nil
+}
+
+// ToMultiLineString converts a MultiLineString faeture to MultiLineString geometry.
+func (f *Feature) ToMultiLineString() (*geometry.MultiLineString, error) {
+	if f.Geometry.GeoJSONType != geojson.MiltiLineString {
+		return nil, errors.New("the feature must be a multiLineString")
+	}
+	var coords [][][]float64
+	ccc, err := json.Marshal(f.Geometry.Coordinates)
+	if err != nil {
+		return nil, errors.New("cannot marshal object")
+	}
+
+	err = json.Unmarshal(ccc, &coords)
+	if err != nil {
+		return nil, errors.New("cannot marshal object")
+	}
+
+	var coordinates []geometry.LineString
+	for i := 0; i < len(coords); i++ {
+		var ls geometry.LineString
+		var points []geometry.Point
+		for j := 0; j < len(coords[i]); j++ {
+			p := geometry.Point{
+				Lat: coords[i][j][1],
+				Lng: coords[i][j][0],
+			}
+			points = append(points, p)
+		}
+		ls.Coordinates = points
+		coordinates = append(coordinates, ls)
+	}
+
+	ml, err := geometry.NewMultiLineString(coordinates)
+	if err != nil {
+		return nil, errors.New("can't create a new multiLineString")
+	}
+	return ml, nil
+}

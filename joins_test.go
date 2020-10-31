@@ -10,8 +10,8 @@ import (
 	"github.com/tomchavakis/turf-go/utils"
 )
 
-const PolyWithHoleFixture = "poly-with-hole.json"
-const MultiPolyWithHoleFixture = "multipoly-with-hole.json"
+const PolyWithHoleFixture = "test-data/poly-with-hole.json"
+const MultiPolyWithHoleFixture = "test-data/multipoly-with-hole.json"
 
 func TestPointInPolygon(t *testing.T) {
 	type args struct {
@@ -22,26 +22,26 @@ func TestPointInPolygon(t *testing.T) {
 	poly := geometry.Polygon{
 		Coordinates: []geometry.LineString{
 			{
-				Coordinates: []geometry.Position{
+				Coordinates: []geometry.Point{
 					{
-						Latitude:  36.171278341935434,
-						Longitude: -86.76624298095703,
+						Lat: 36.171278341935434,
+						Lng: -86.76624298095703,
 					},
 					{
-						Latitude:  36.170862616662134,
-						Longitude: -86.74238204956055,
+						Lat: 36.170862616662134,
+						Lng: -86.74238204956055,
 					},
 					{
-						Latitude:  36.19607929145354,
-						Longitude: -86.74100875854492,
+						Lat: 36.19607929145354,
+						Lng: -86.74100875854492,
 					},
 					{
-						Latitude:  36.2014818084173,
-						Longitude: -86.77362442016602,
+						Lat: 36.2014818084173,
+						Lng: -86.77362442016602,
 					},
 					{
-						Latitude:  36.171278341935434,
-						Longitude: -86.76624298095703,
+						Lat: 36.171278341935434,
+						Lng: -86.76624298095703,
 					},
 				},
 			},
@@ -125,31 +125,26 @@ func TestPointInPolygon(t *testing.T) {
 
 func TestFeatureCollection(t *testing.T) {
 	// test for a simple Polygon
-	coords := []geometry.Position{
+	coords := []geometry.Point{
 		{
-			Altitude:  nil,
-			Latitude:  0,
-			Longitude: 0,
+			Lat: 0,
+			Lng: 0,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  0,
-			Longitude: 100,
+			Lat: 0,
+			Lng: 100,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  100,
-			Longitude: 100,
+			Lat: 100,
+			Lng: 100,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  100,
-			Longitude: 0,
+			Lat: 100,
+			Lng: 0,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  0,
-			Longitude: 0,
+			Lat: 0,
+			Lng: 0,
 		},
 	}
 

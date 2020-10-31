@@ -11,3 +11,11 @@ type Position struct {
 func NewPosition(altitude *float64, latitude float64, longitude float64) *Position {
 	return &Position{Altitude: altitude, Latitude: latitude, Longitude: longitude}
 }
+
+// ToPoint converts a Position to Point
+func (p *Position) ToPoint() Point {
+	return Point{
+		Lat: p.Latitude,
+		Lng: p.Longitude,
+	}
+}
