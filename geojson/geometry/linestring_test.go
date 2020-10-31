@@ -7,18 +7,16 @@ import (
 
 func TestNewLineString(t *testing.T) {
 	type args struct {
-		coordinates []Position
+		coordinates []Point
 	}
-	coords := []Position{
+	coords := []Point{
 		{
-			Altitude:  nil,
-			Latitude:  34.44,
-			Longitude: 23.53,
+			Lat: 34.44,
+			Lng: 23.53,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  34.44,
-			Longitude: 23.53,
+			Lat: 34.44,
+			Lng: 23.53,
 		}}
 
 	tests := map[string]struct {
@@ -28,11 +26,10 @@ func TestNewLineString(t *testing.T) {
 	}{
 		"coordinates less than 2": {
 			args: args{
-				coordinates: []Position{
+				coordinates: []Point{
 					{
-						Altitude:  nil,
-						Latitude:  34.44,
-						Longitude: 23.53,
+						Lat: 34.44,
+						Lng: 23.53,
 					},
 				},
 			},
@@ -64,50 +61,42 @@ func TestNewLineString(t *testing.T) {
 
 func TestLineString_IsClosed(t *testing.T) {
 	type fields struct {
-		coordinates []Position
+		coordinates []Point
 	}
-	closedCoords := []Position{
+	closedCoords := []Point{
 		{
-			Altitude:  nil,
-			Latitude:  52.370725881211314,
-			Longitude: 4.889259338378906,
+			Lat: 52.370725881211314,
+			Lng: 4.889259338378906,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  52.3711451105601,
-			Longitude: 4.895267486572266,
+			Lat: 52.3711451105601,
+			Lng: 4.895267486572266,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  52.36931095278263,
-			Longitude: 4.892091751098633,
+			Lat: 52.36931095278263,
+			Lng: 4.892091751098633,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  52.370725881211314,
-			Longitude: 4.889259338378906,
+			Lat: 52.370725881211314,
+			Lng: 4.889259338378906,
 		},
 	}
-	openCoords := []Position{
+	openCoords := []Point{
 		{
-			Altitude:  nil,
-			Latitude:  52.370725881211314,
-			Longitude: 4.889259338378906,
+			Lat: 52.370725881211314,
+			Lng: 4.889259338378906,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  52.3711451105601,
-			Longitude: 4.895267486572266,
+			Lat: 52.3711451105601,
+			Lng: 4.895267486572266,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  52.36931095278263,
-			Longitude: 4.892091751098633,
+			Lat: 52.36931095278263,
+			Lng: 4.892091751098633,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  52.3707258812113,
-			Longitude: 4.8892593383789,
+			Lat: 52.3707258812113,
+			Lng: 4.8892593383789,
 		},
 	}
 	tests := map[string]struct {
@@ -141,45 +130,38 @@ func TestLineString_IsClosed(t *testing.T) {
 
 func TestLineString_IsLinearRing(t *testing.T) {
 	type fields struct {
-		coordinates []Position
+		coordinates []Point
 	}
-	closedCoords := []Position{
+	closedCoords := []Point{
 		{
-			Altitude:  nil,
-			Latitude:  52.370725881211314,
-			Longitude: 4.889259338378906,
+			Lat: 52.370725881211314,
+			Lng: 4.889259338378906,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  52.3711451105601,
-			Longitude: 4.895267486572266,
+			Lat: 52.3711451105601,
+			Lng: 4.895267486572266,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  52.36931095278263,
-			Longitude: 4.892091751098633,
+			Lat: 52.36931095278263,
+			Lng: 4.892091751098633,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  52.370725881211314,
-			Longitude: 4.889259338378906,
+			Lat: 52.370725881211314,
+			Lng: 4.889259338378906,
 		},
 	}
-	nonLinearCoords := []Position{
+	nonLinearCoords := []Point{
 		{
-			Altitude:  nil,
-			Latitude:  52.370725881211314,
-			Longitude: 4.889259338378906,
+			Lat: 52.370725881211314,
+			Lng: 4.889259338378906,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  52.3711451105601,
-			Longitude: 4.895267486572266,
+			Lat: 52.3711451105601,
+			Lng: 4.895267486572266,
 		},
 		{
-			Altitude:  nil,
-			Latitude:  52.36931095278263,
-			Longitude: 4.892091751098633,
+			Lat: 52.36931095278263,
+			Lng: 4.892091751098633,
 		},
 	}
 	tests := map[string]struct {

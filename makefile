@@ -7,7 +7,7 @@ lint:
 	golangci-lint run --modules-download-mode=vendor --timeout=2m0s -E golint --exclude-use-default=false --build-tags integration
 
 test:
-	GO111MODULE=on go test -mod=vendor -race
+	GO111MODULE=on go test -mod=vendor `go list -mod vendor ./...`  -race
 
 fmt:
 	go fmt ./...

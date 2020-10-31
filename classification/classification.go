@@ -1,8 +1,10 @@
-package turf
+package classification
 
 import (
-	"github.com/tomchavakis/turf-go/geojson/geometry"
 	"math"
+
+	"github.com/tomchavakis/turf-go/geojson/geometry"
+	"github.com/tomchavakis/turf-go/measurement"
 )
 
 // NearestPoint takes a reference point and a list of points and returns the point from the point list closest to the reference.
@@ -15,7 +17,7 @@ func NearestPoint(refPoint geometry.Point, points []geometry.Point) geometry.Poi
 	minDist := math.MaxFloat64
 
 	for _, point := range points {
-		dist := PointDistance(refPoint, point)
+		dist := measurement.PointDistance(refPoint, point)
 		if dist < minDist {
 			result = point
 			minDist = dist
