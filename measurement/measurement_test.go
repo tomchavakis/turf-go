@@ -107,7 +107,7 @@ func TestLineDistanceWhenRouteIsPoint(t *testing.T) {
 
 	ln, err := geometry.NewLineString(coords)
 	assert.NoError(t, err, "error initializing the lineString")
-	d := LineStringLength(*ln)
+	d := Length(*ln)
 
 	assert.Equal(t, d, 0.0)
 }
@@ -148,8 +148,8 @@ func TestLineDistanceWithGeometries(t *testing.T) {
 	ls2, err := feature2.ToLineString()
 	assert.NoError(t, err, "error converting feature to LineString")
 
-	l1 := LineStringLength(*ls1)
-	l2 := LineStringLength(*ls2)
+	l1 := Length(*ls1)
+	l2 := Length(*ls2)
 
 	assert.Equal(t, l1, 326.10170358450773)
 	assert.Equal(t, l2, 742.3766554982323)
@@ -165,7 +165,7 @@ func TestLineDistancePolygon(t *testing.T) {
 
 	polygon, err := feature.ToPolygon()
 	assert.NoError(t, err, "error converting feature to polygon")
-	l := PolygonLength(*polygon)
+	l := Length(*polygon)
 	assert.Equal(t, l, 5.603584981972479, "invalid length value")
 }
 
@@ -178,6 +178,6 @@ func TestLineDistanceMultiLineString(t *testing.T) {
 
 	mls, err := feature.ToMultiLineString()
 	assert.NoError(t, err, "error converting feature to multiLineString")
-	l := MultiLineStringLength(*mls)
+	l := Length(*mls)
 	assert.Equal(t, l, 4.709104188828164, "invalid length value")
 }
