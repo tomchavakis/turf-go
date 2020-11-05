@@ -80,9 +80,37 @@ func Destination(p1 geometry.Point, distance float64, bearing float64) geometry.
 	return geometry.Point{Lat: conversions.RadiansToDegrees(dLat), Lng: conversions.RadiansToDegrees(dLng)}
 }
 
-// Length measures the length of a set of points
+// Length measures the length of a geometry.
+func Length(t interface{}) float64 {
+
+	result := 0.0
+	switch gtp := t.(type) {
+	case []geometry.Point:
+		result = lenth(gtp)
+	case geometry.LineString:
+		result = lenth(gtp.Coordinates)
+	case geometry.MultiLineString:
+		coords := gtp.Coordinates // []LineString
+		for _, c := range coords {
+			result += lenth(c.Coordinates)
+		}
+	case geometry.Polygon:
+		for _, c := range gtp.Coordinates {
+			result += lenth(c.Coordinates)
+		}
+	case geometry.MultiPolygon:
+		coords := gtp.Coordinates
+		for _, coord := range coords {
+			for _, pl := range coord.Coordinates {
+				result += lenth(pl.Coordinates)
+			}
+		}
+	}
+	return result
+}
+
 // http://turfjs.org/docs/#linedistance
-func Length(coords []geometry.Point) float64 {
+func lenth(coords []geometry.Point) float64 {
 	travelled := 0.0
 	prevCoords := coords[0]
 	var currentCoords geometry.Point
@@ -92,42 +120,4 @@ func Length(coords []geometry.Point) float64 {
 		prevCoords = currentCoords
 	}
 	return travelled
-}
-
-// LineStringLength measures the length of a Linestring
-func LineStringLength(l geometry.LineString) float64 {
-	return Length(l.Coordinates)
-}
-
-// MultiLineStringLength measures the length of a MultiLineString
-func MultiLineStringLength(ml geometry.MultiLineString) float64 {
-	len := 0.0
-	coords := ml.Coordinates // []LineString
-	for _, c := range coords {
-		len += LineStringLength(c)
-	}
-
-	return len
-}
-
-// PolygonLength measures the length of a polygon
-func PolygonLength(p geometry.Polygon) float64 {
-	len := 0.0
-	for _, c := range p.Coordinates {
-		len += LineStringLength(c)
-	}
-
-	return len
-}
-
-// MultiPolygonLength measures the length of a MultiPolygon
-func MultiPolygonLength(mp geometry.MultiPolygon) float64 {
-	len := 0.0
-	coords := mp.Coordinates
-	for _, coord := range coords {
-		for _, pl := range coord.Coordinates {
-			len += LineStringLength(pl)
-		}
-	}
-	return len
 }
