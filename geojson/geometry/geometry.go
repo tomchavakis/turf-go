@@ -54,3 +54,49 @@ func (g *Geometry) ToPolygon() (*Polygon, error) {
 	}
 	return nil, nil
 }
+
+// ToMultiPolygon converts a MultiPolygon Feature to MultiPolygon geometry.
+func (g *Geometry) ToMultiPolygon() (*MultiPolygon, error) {
+	if g.GeoJSONType != geojson.MultiPolygon {
+		return nil, errors.New("the feature must be a multiPolygon")
+	}
+	var multiPolygonCoordinates [][][][]float64
+	ccc, err := json.Marshal(g.Coordinates)
+	if err != nil {
+		return nil, errors.New("cannot marshal object")
+	}
+	err = json.Unmarshal(ccc, &multiPolygonCoordinates)
+
+	if err != nil {
+		return nil, errors.New("cannot marshal object")
+	}
+
+	var polys = []Polygon{}
+	for k := 0; k < len(multiPolygonCoordinates); k++ {
+		var coords = []LineString{}
+		for i := 0; i < len(multiPolygonCoordinates[k]); i++ {
+			var posArray = []Point{}
+			for j := 0; j < len(multiPolygonCoordinates[k][i]); j++ {
+				pos := Point{
+					Lng: multiPolygonCoordinates[k][i][j][0],
+					Lat: multiPolygonCoordinates[k][i][j][1],
+				}
+				posArray = append(posArray, pos)
+			}
+			ln := LineString{
+				Coordinates: posArray,
+			}
+			coords = append(coords, ln)
+		}
+		poly := Polygon{
+			Coordinates: coords,
+		}
+		polys = append(polys, poly)
+	}
+
+	poly, err := NewMultiPolygon(polys)
+	if err != nil {
+		return nil, errors.New("cannot creat a new polygon")
+	}
+	return poly, nil
+}

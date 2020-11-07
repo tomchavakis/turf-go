@@ -1,7 +1,6 @@
 package measurement
 
 import (
-	"encoding/json"
 	"errors"
 	"math"
 
@@ -152,18 +151,13 @@ func calculateArea(g geometry.Geometry) (float64, error) {
 
 		poly, err := g.ToPolygon()
 		if err != nil {
-			return 0.0, errors.New("cannot create a new polygon")
+			return 0.0, errors.New("cannot convert geometry to Polygon")
 		}
 		return polygonArea(poly.Coordinates), nil
 	} else if g.GeoJSONType == geojson.MultiPolygon {
-		var multiPoly geometry.MultiPolygon
-		ccc, err := json.Marshal(g)
+		multiPoly, err := g.ToMultiPolygon()
 		if err != nil {
-			return total, errors.New("cannot marshal object")
-		}
-		err = json.Unmarshal(ccc, &multiPoly)
-		if err != nil {
-			return total, errors.New("cannot unmarshal object")
+			return 0.0, errors.New("cannot convert geometry to MultiPolygon")
 		}
 		for i := 0; i < len(multiPoly.Coordinates); i++ {
 			total += polygonArea(multiPoly.Coordinates[i].Coordinates)
