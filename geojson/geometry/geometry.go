@@ -15,6 +15,23 @@ type Geometry struct {
 	Coordinates interface{}        `json:"coordinates"`
 }
 
+// FromJSON returns a new Geometry by passing in a valid JSON string.
+func FromJSON(gjson string) (*Geometry, error) {
+
+	if gjson == "" {
+		return nil, errors.New("input cannot be empty")
+	}
+
+	var geometry Geometry
+	err := json.Unmarshal([]byte(gjson), &geometry)
+	if err != nil {
+		return nil, errors.New("cannot decode the input value")
+	}
+
+	return &geometry, nil
+
+}
+
 // ToPolygon convert the Geometry to Polygon
 func (g *Geometry) ToPolygon() (*Polygon, error) {
 

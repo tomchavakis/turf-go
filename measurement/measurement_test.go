@@ -17,6 +17,8 @@ const LineDistancePolygon = "../test-data/polygon.json"
 const LineDistanceMultiLineString = "../test-data/multiLineString.json"
 const AreaPolygon = "../test-data/area-polygon.json"
 const AreaMultiPolygon = "../test-data/area-multipolygon.json"
+const AreaGeomPolygon = "../test-data/area-geom-polygon.json"
+const AreaGeomMultiPolygon = "../test-data/area-geom-multipolgon.json"
 
 func TestDistance(t *testing.T) {
 	d := Distance(-77.03653, 38.89768, -77.05173, 38.8973)
@@ -184,7 +186,7 @@ func TestLineDistanceMultiLineString(t *testing.T) {
 	assert.Equal(t, l, 4.709104188828164, "invalid length value")
 }
 
-func TestAreaPolygon(t *testing.T) {
+func TestAreaPolygonAsFeature(t *testing.T) {
 	gjson1, err := utils.LoadJSONFixture(AreaPolygon)
 	assert.NoError(t, err, "can't load multiLineString geojson")
 
@@ -196,7 +198,7 @@ func TestAreaPolygon(t *testing.T) {
 	assert.Equal(t, area, 7766240.997209013, "invalid area value")
 }
 
-func TestAreaMultiPolygon(t *testing.T) {
+func TestAreaMultiPolygonAsFeature(t *testing.T) {
 	gjson1, err := utils.LoadJSONFixture(AreaMultiPolygon)
 	assert.NoError(t, err, "can't load multiLineString geojson")
 
@@ -206,4 +208,53 @@ func TestAreaMultiPolygon(t *testing.T) {
 	assert.NoError(t, err, "error while computing geojson to feature")
 
 	assert.Equal(t, area, 24771.477332558756, "invalid area value")
+}
+
+func TestAreaPolygonAsGeometry(t *testing.T) {
+	gjson1, err := utils.LoadJSONFixture(AreaGeomPolygon)
+	assert.NoError(t, err, "can't load multiLineString geojson")
+
+	geom, err := geometry.FromJSON(gjson1)
+	assert.NoError(t, err, "error while decoding geojson to feature")
+
+	area, err := Area(geom)
+	assert.NoError(t, err, "error while computing geojson to feature")
+
+	assert.Equal(t, area, 11.017976596496059, "invalid area value")
+
+}
+
+func TestAreaPolygon(t *testing.T) {
+	gjson1, err := utils.LoadJSONFixture(AreaGeomPolygon)
+	assert.NoError(t, err, "can't load multiLineString geojson")
+
+	geom, err := geometry.FromJSON(gjson1)
+	assert.NoError(t, err, "error while decoding geojson to feature")
+
+	poly, err := geom.ToPolygon()
+	assert.NoError(t, err, "error while converting geometry to polygon")
+
+	area, err := Area(poly)
+	assert.NoError(t, err, "error while computing geojson to feature")
+
+	assert.Equal(t, area, 11.017976596496059, "invalid area value")
+}
+
+func TestAreaMultiPolygon(t *testing.T) {
+	gjson1, err := utils.LoadJSONFixture(AreaGeomMultiPolygon)
+	assert.NoError(t, err, "can't load multiLineString geojson")
+
+	geometry, err := geometry.FromJSON(gjson1)
+	assert.NoError(t, err, "error while decoding geojson to feature")
+
+	multiPoly, err := geometry.ToMultiPolygon()
+
+	area, err := Area(multiPoly)
+	assert.NoError(t, err, "error while computing geojson to feature")
+
+	assert.Equal(t, area, 24771.477332558756, "invalid area value")
+}
+
+func TestAreaFeatureCollection(t *testing.T) {
+
 }

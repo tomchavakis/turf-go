@@ -141,6 +141,16 @@ func Area(t interface{}) (float64, error) {
 		//   }
 		// }
 		return 0.0, nil
+	case *geometry.Geometry:
+		return calculateArea(*gtp)
+	case *geometry.Polygon:
+		return polygonArea(gtp.Coordinates), nil
+	case *geometry.MultiPolygon:
+		total := 0.0
+		for i := 0; i < len(gtp.Coordinates); i++ {
+			total += polygonArea(gtp.Coordinates[i].Coordinates)
+		}
+		return total, nil
 	}
 	return 0.0, nil
 }
