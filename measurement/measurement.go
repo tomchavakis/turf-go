@@ -11,6 +11,34 @@ import (
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
+// BBox takes a set of features, calculates the bbox of all input features, and returns a bounding box.
+func BBox(t interface{}) {
+}
+
+func bboxCalculator(coords []geometry.Point) []float64 {
+	var bbox []float64
+	bbox = append(bbox, math.Inf(+1))
+	bbox = append(bbox, math.Inf(+1))
+	bbox = append(bbox, math.Inf(-1))
+	bbox = append(bbox, math.Inf(-1))
+
+	for _, p := range coords {
+		if bbox[0] > p.Lng {
+			bbox[0] = p.Lng
+		}
+		if bbox[1] > p.Lat {
+			bbox[1] = p.Lat
+		}
+		if bbox[2] < p.Lng {
+			bbox[2] = p.Lng
+		}
+		if bbox[3] < p.Lat {
+			bbox[3] = p.Lat
+		}
+	}
+	return bbox
+}
+
 // Distance calculates the distance between two points in kilometers. This uses the Haversine formula
 func Distance(lon1 float64, lat1 float64, lon2 float64, lat2 float64) float64 {
 
