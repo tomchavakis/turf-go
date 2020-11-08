@@ -1,10 +1,13 @@
 package measurement
 
 import (
+	"errors"
 	"math"
 
 	"github.com/tomchavakis/turf-go/constants"
 	"github.com/tomchavakis/turf-go/conversions"
+	"github.com/tomchavakis/turf-go/geojson"
+	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
@@ -120,4 +123,115 @@ func lenth(coords []geometry.Point) float64 {
 		prevCoords = currentCoords
 	}
 	return travelled
+}
+
+// Area takes a geometry type and returns its area in square meters
+func Area(t interface{}) (float64, error) {
+	switch gtp := t.(type) {
+	case *feature.Feature:
+		return calculateArea(gtp.Geometry)
+	case *feature.Collection:
+		features := gtp.Features
+		total := 0.0
+		if len(features) > 0 {
+			for _, f := range features {
+				ar, err := calculateArea(f.Geometry)
+				if err != nil {
+					return 0, err
+				}
+				total += ar
+			}
+		}
+		return total, nil
+	case *geometry.Geometry:
+		return calculateArea(*gtp)
+	case *geometry.Polygon:
+		return polygonArea(gtp.Coordinates), nil
+	case *geometry.MultiPolygon:
+		total := 0.0
+		for i := 0; i < len(gtp.Coordinates); i++ {
+			total += polygonArea(gtp.Coordinates[i].Coordinates)
+		}
+		return total, nil
+	}
+	return 0.0, nil
+}
+
+func calculateArea(g geometry.Geometry) (float64, error) {
+	total := 0.0
+	if g.GeoJSONType == geojson.Polygon {
+
+		poly, err := g.ToPolygon()
+		if err != nil {
+			return 0.0, errors.New("cannot convert geometry to Polygon")
+		}
+		return polygonArea(poly.Coordinates), nil
+	} else if g.GeoJSONType == geojson.MultiPolygon {
+		multiPoly, err := g.ToMultiPolygon()
+		if err != nil {
+			return 0.0, errors.New("cannot convert geometry to MultiPolygon")
+		}
+		for i := 0; i < len(multiPoly.Coordinates); i++ {
+			total += polygonArea(multiPoly.Coordinates[i].Coordinates)
+		}
+
+		return total, nil
+	} else {
+		// area should be 0 for Point, MultiPoint, LineString and MultiLineString
+		return total, nil
+	}
+}
+
+func polygonArea(coords []geometry.LineString) float64 {
+	total := 0.0
+	if len(coords) > 0 {
+		total += math.Abs(ringArea(coords[0].Coordinates))
+		for i := 1; i < len(coords); i++ {
+			total -= math.Abs(ringArea(coords[i].Coordinates))
+		}
+	}
+	return total
+}
+
+// calculate the approximate area of the polygon were it projected onto the earth.
+// Note that this area will be positive if ring is oriented clockwise, otherwise
+// it will be negative.
+//
+// Reference:
+// Robert. G. Chamberlain and William H. Duquette, "Some Algorithms for Polygons on a Sphere",
+// JPL Publication 07-03, Jet Propulsion
+// Laboratory, Pasadena, CA, June 2007 https://trs.jpl.nasa.gov/handle/2014/41271
+func ringArea(coords []geometry.Point) float64 {
+	var p1 geometry.Point
+	var p2 geometry.Point
+	var p3 geometry.Point
+	var lowerIndex int
+	var middleIndex int
+	var upperIndex int
+	total := 0.0
+	coordsLength := len(coords)
+
+	if coordsLength > 2 {
+		for i := 0; i < coordsLength; i++ {
+			if i == coordsLength-2 { // i = N-2
+				lowerIndex = coordsLength - 2
+				middleIndex = coordsLength - 1
+				upperIndex = 0
+			} else if i == coordsLength-1 { //i = N-1
+				lowerIndex = coordsLength - 1
+				middleIndex = 0
+				upperIndex = 1
+			} else { // i =0 to N-3
+				lowerIndex = i
+				middleIndex = i + 1
+				upperIndex = i + 2
+			}
+			p1 = coords[lowerIndex]
+			p2 = coords[middleIndex]
+			p3 = coords[upperIndex]
+			total += (conversions.DegreesToRadians(p3.Lng) - conversions.DegreesToRadians(p1.Lng)) * math.Sin(conversions.DegreesToRadians(p2.Lat))
+		}
+		total = total * constants.EarthRadius * constants.EarthRadius / 2
+	}
+	return total
 }
