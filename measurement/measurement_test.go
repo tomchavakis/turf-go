@@ -19,6 +19,7 @@ const AreaPolygon = "../test-data/area-polygon.json"
 const AreaMultiPolygon = "../test-data/area-multipolygon.json"
 const AreaGeomPolygon = "../test-data/area-geom-polygon.json"
 const AreaGeomMultiPolygon = "../test-data/area-geom-multipolgon.json"
+const AreaFeatureCollection = "../test-data/area-feature-collection.json"
 
 func TestDistance(t *testing.T) {
 	d := Distance(-77.03653, 38.89768, -77.05173, 38.8973)
@@ -256,5 +257,14 @@ func TestAreaMultiPolygon(t *testing.T) {
 }
 
 func TestAreaFeatureCollection(t *testing.T) {
+	gjson1, err := utils.LoadJSONFixture(AreaFeatureCollection)
+	assert.NoError(t, err, "can't load feature collection geojson")
 
+	collection, err := feature.CollectionFromJSON(gjson1)
+	assert.NoError(t, err, "error while decoding geojson to feature")
+
+	area, err := Area(collection)
+	assert.NoError(t, err, "error while computing geojson to feature")
+
+	assert.Equal(t, area, 294852.3713607366, "invalid area value")
 }

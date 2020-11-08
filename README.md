@@ -10,7 +10,7 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 ## measurement
 
 - [ ] along
-- [ ] area
+- [x] area
 - [ ] bbox
 - [ ] bboxPolygon
 - [x] bearing

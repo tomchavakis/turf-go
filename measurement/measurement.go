@@ -131,16 +131,18 @@ func Area(t interface{}) (float64, error) {
 	case *feature.Feature:
 		return calculateArea(gtp.Geometry)
 	case *feature.Collection:
-		//return calculateArea(g)
-		//TODO: Fix feature Collection
-		// 	List<Feature> features = featureCollection.features();
-		// double total = 0.0f;
-		// if (features != null) {
-		//   for (Feature feature : features) {
-		//     total += area(feature);
-		//   }
-		// }
-		return 0.0, nil
+		features := gtp.Features
+		total := 0.0
+		if len(features) > 0 {
+			for _, f := range features {
+				ar, err := calculateArea(f.Geometry)
+				if err != nil {
+					return 0, err
+				}
+				total += ar
+			}
+		}
+		return total, nil
 	case *geometry.Geometry:
 		return calculateArea(*gtp)
 	case *geometry.Polygon:
