@@ -9,17 +9,16 @@ import (
 
 // Collection represents a feature collection which holds a list of Fetures
 type Collection struct {
-	// A Feature object has a "Type" member with the value "Feature".
 	Type     geojson.OBjectType `json:"type"`
 	Features []Feature          `json:"features"`
 }
 
-// NewFeatureCollection initializes a new instance of Collection
+// NewFeatureCollection initializes a new instance of FeatureCollection
 func NewFeatureCollection(features []Feature) (*Collection, error) {
 	return &Collection{Features: features}, nil
 }
 
-// CollectionFromJSON returns a new Feature by passing in a valid JSON string.
+// CollectionFromJSON returns a new Collection by passing in a valid JSON string.
 func CollectionFromJSON(gjson string) (*Collection, error) {
 
 	if gjson == "" {
