@@ -32,6 +32,51 @@ func FromJSON(gjson string) (*Geometry, error) {
 
 }
 
+// ToPoint converts the Geometry to Point
+func (g *Geometry) ToPoint() (*Point, error) {
+	if g.GeoJSONType == geojson.Point {
+
+		var coords []float64
+		ccc, err := json.Marshal(g.Coordinates)
+		if err != nil {
+			return nil, errors.New("cannot marshal object")
+		}
+		err = json.Unmarshal(ccc, &coords)
+		if err != nil {
+			return nil, errors.New("cannot unmarshal object")
+		}
+		var pos = Point{}
+		pos.Lat = coords[1]
+		pos.Lng = coords[0]
+
+		return &pos, nil
+	}
+	return nil, errors.New("invalid geometry")
+}
+
+// ToMultiPoint converts the Geometry to MultiPoint
+func (g *Geometry) ToMultiPoint() (*MultiPoint, error) {
+	if g.GeoJSONType == geojson.MultiPoint {
+		var m MultiPoint
+		var coords [][]float64
+		ccc, err := json.Marshal(g.Coordinates)
+		if err != nil {
+			return nil, errors.New("cannot marshal object")
+		}
+		err = json.Unmarshal(ccc, &coords)
+		if err != nil {
+			return nil, errors.New("cannot unmarshal object")
+		}
+		for i := 0; i < len(coords); i++ {
+			p := NewPoint(coords[i][1], coords[i][0])
+			m.Coordinates = append(m.Coordinates, *p)
+		}
+		return &m, nil
+	}
+
+	return nil, errors.New("invalid geometry")
+}
+
 // ToPolygon convert the Geometry to Polygon
 func (g *Geometry) ToPolygon() (*Polygon, error) {
 
@@ -69,7 +114,7 @@ func (g *Geometry) ToPolygon() (*Polygon, error) {
 		}
 		return poly, nil
 	}
-	return nil, nil
+	return nil, errors.New("invalid geometry")
 }
 
 // ToMultiPolygon converts a MultiPolygon Feature to MultiPolygon geometry.
@@ -116,4 +161,74 @@ func (g *Geometry) ToMultiPolygon() (*MultiPolygon, error) {
 		return nil, errors.New("cannot creat a new polygon")
 	}
 	return poly, nil
+}
+
+// ToLineString converts a ToLineString Geometry to ToLineString geometry.
+func (g *Geometry) ToLineString() (*LineString, error) {
+	if g.GeoJSONType != geojson.LineString {
+		return nil, errors.New("the feature must be a linestring")
+	}
+
+	var coords [][]float64
+	ccc, err := json.Marshal(g.Coordinates)
+	if err != nil {
+		return nil, errors.New("cannot marshal object")
+	}
+	err = json.Unmarshal(ccc, &coords)
+	if err != nil {
+		return nil, errors.New("cannot marshal object")
+	}
+
+	var coordinates []Point
+	for _, coord := range coords {
+		p := Point{
+			Lat: coord[1],
+			Lng: coord[0],
+		}
+		coordinates = append(coordinates, p)
+	}
+
+	lineString, err := NewLineString(coordinates)
+	if err != nil {
+		return nil, errors.New("cannot creat a new polygon")
+	}
+	return lineString, nil
+}
+
+// ToMultiLineString converts a MultiLineString faeture to MultiLineString geometry.
+func (g *Geometry) ToMultiLineString() (*MultiLineString, error) {
+	if g.GeoJSONType != geojson.MiltiLineString {
+		return nil, errors.New("the feature must be a multiLineString")
+	}
+	var coords [][][]float64
+	ccc, err := json.Marshal(g.Coordinates)
+	if err != nil {
+		return nil, errors.New("cannot marshal object")
+	}
+
+	err = json.Unmarshal(ccc, &coords)
+	if err != nil {
+		return nil, errors.New("cannot marshal object")
+	}
+
+	var coordinates []LineString
+	for i := 0; i < len(coords); i++ {
+		var ls LineString
+		var points []Point
+		for j := 0; j < len(coords[i]); j++ {
+			p := Point{
+				Lat: coords[i][j][1],
+				Lng: coords[i][j][0],
+			}
+			points = append(points, p)
+		}
+		ls.Coordinates = points
+		coordinates = append(coordinates, ls)
+	}
+
+	ml, err := NewMultiLineString(coordinates)
+	if err != nil {
+		return nil, errors.New("can't create a new multiLineString")
+	}
+	return ml, nil
 }

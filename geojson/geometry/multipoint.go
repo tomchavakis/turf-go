@@ -5,7 +5,7 @@ import "errors"
 // MultiPoint defines the MultiPoint type
 //https://tools.ietf.org/html/rfc7946#section-3.1.3
 type MultiPoint struct {
-	coordinates []Point
+	Coordinates []Point
 }
 
 // NewMultiPoint initializes a new MultiLineString
@@ -15,5 +15,5 @@ func NewMultiPoint(coordinates []Point) (*MultiPoint, error) {
 		return nil, errors.New("according to the GeoJSON v1.0 spec a MultiLineString must have at least two or more positions")
 	}
 
-	return &MultiPoint{coordinates: coordinates}, nil
+	return &MultiPoint{Coordinates: coordinates}, nil
 }

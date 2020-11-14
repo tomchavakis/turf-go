@@ -249,6 +249,7 @@ func TestAreaMultiPolygon(t *testing.T) {
 	assert.NoError(t, err, "error while decoding geojson to feature")
 
 	multiPoly, err := geometry.ToMultiPolygon()
+	assert.Nil(t, err, "multiPolygon can't be nil")
 
 	area, err := Area(multiPoly)
 	assert.NoError(t, err, "error while computing geojson to feature")
