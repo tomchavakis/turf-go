@@ -20,6 +20,11 @@ const AreaMultiPolygon = "../test-data/area-multipolygon.json"
 const AreaGeomPolygon = "../test-data/area-geom-polygon.json"
 const AreaGeomMultiPolygon = "../test-data/area-geom-multipolgon.json"
 const AreaFeatureCollection = "../test-data/area-feature-collection.json"
+const BBoxPoint = "../test-data/bbox-point.json"
+const BBoxLineString = "../test-data/bbox-linestring.json"
+const BBoxPolygon = "../test-data/bbox-polygon.json"
+const BBoxMultiLineString = "../test-data/bbox-multilinestring.json"
+const BBoxMultiPolygon = "../test-data/bbox-multipolygon.json"
 
 func TestDistance(t *testing.T) {
 	d := Distance(-77.03653, 38.89768, -77.05173, 38.8973)
@@ -268,4 +273,104 @@ func TestAreaFeatureCollection(t *testing.T) {
 	assert.NoError(t, err, "error while computing geojson to feature")
 
 	assert.Equal(t, area, 294852.3713607366, "invalid area value")
+}
+
+func TestBBoxPoint(t *testing.T) {
+	gson, err := utils.LoadJSONFixture(BBoxPoint)
+	assert.NoError(t, err, "can't load geojson")
+
+	f, err := feature.FromJSON(gson)
+	assert.NoError(t, err, "error while decoding geojson")
+
+	p, err := f.ToPoint()
+	assert.NoError(t, err, "error while converting feature")
+	bbox, err := BBox(p)
+	assert.NoError(t, err, "bbox error")
+
+	assert.Equal(t, len(bbox), 4, "invalid bbox length")
+
+	assert.Equal(t, bbox[0], 102.0)
+	assert.Equal(t, bbox[1], 0.5)
+	assert.Equal(t, bbox[2], 102.0)
+	assert.Equal(t, bbox[3], 0.5)
+}
+
+func TestBBoxLineString(t *testing.T) {
+	gson, err := utils.LoadJSONFixture(BBoxLineString)
+	assert.NoError(t, err, "can't load geojson")
+
+	f, err := feature.FromJSON(gson)
+	assert.NoError(t, err, "error while decoding geojson")
+
+	l, err := f.ToLineString()
+	assert.NoError(t, err, "error while converting feature")
+	bbox, err := BBox(l)
+	assert.NoError(t, err, "bbox error")
+
+	assert.Equal(t, len(bbox), 4, "invalid bbox length")
+
+	assert.Equal(t, bbox[0], 102.0)
+	assert.Equal(t, bbox[1], -10.0)
+	assert.Equal(t, bbox[2], 130.0)
+	assert.Equal(t, bbox[3], 4.0)
+}
+
+func TestBBoxPolygon(t *testing.T) {
+	gson, err := utils.LoadJSONFixture(BBoxPolygon)
+	assert.NoError(t, err, "can't load geojson")
+
+	f, err := feature.FromJSON(gson)
+	assert.NoError(t, err, "error while decoding geojson")
+
+	p, err := f.ToPolygon()
+	assert.NoError(t, err, "error while converting feature")
+	bbox, err := BBox(p)
+	assert.NoError(t, err, "bbox error")
+
+	assert.Equal(t, len(bbox), 4, "invalid bbox length")
+
+	assert.Equal(t, bbox[0], 100.0)
+	assert.Equal(t, bbox[1], 0.0)
+	assert.Equal(t, bbox[2], 101.0)
+	assert.Equal(t, bbox[3], 1.0)
+}
+
+func TestMultiLineString(t *testing.T) {
+	gson, err := utils.LoadJSONFixture(BBoxMultiLineString)
+	assert.NoError(t, err, "can't load geojson")
+
+	f, err := feature.FromJSON(gson)
+	assert.NoError(t, err, "error while decoding geojson")
+
+	ml, err := f.ToMultiLineString()
+	assert.NoError(t, err, "error while converting feature")
+	bbox, err := BBox(ml)
+	assert.NoError(t, err, "bbox error")
+
+	assert.Equal(t, len(bbox), 4, "invalid bbox length")
+
+	assert.Equal(t, bbox[0], 100.0)
+	assert.Equal(t, bbox[1], 0.0)
+	assert.Equal(t, bbox[2], 103.0)
+	assert.Equal(t, bbox[3], 3.0)
+}
+
+func TestMultiPolygon(t *testing.T) {
+	gson, err := utils.LoadJSONFixture(BBoxMultiPolygon)
+	assert.NoError(t, err, "can't load geojson")
+
+	f, err := feature.FromJSON(gson)
+	assert.NoError(t, err, "error while decoding geojson")
+
+	mpoly, err := f.ToMultiPolygon()
+	assert.NoError(t, err, "error while converting feature")
+	bbox, err := BBox(mpoly)
+	assert.NoError(t, err, "bbox error")
+
+	assert.Equal(t, len(bbox), 4, "invalid bbox length")
+
+	assert.Equal(t, bbox[0], 100.0)
+	assert.Equal(t, bbox[1], 0.0)
+	assert.Equal(t, bbox[2], 103.0)
+	assert.Equal(t, bbox[3], 3.0)
 }

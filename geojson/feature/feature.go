@@ -55,6 +55,51 @@ func FromJSON(gjson string) (*Feature, error) {
 
 }
 
+// ToPoint converts the Feature to Point.
+func (f *Feature) ToPoint() (*geometry.Point, error) {
+	if f.Geometry.GeoJSONType != geojson.Point {
+		return nil, errors.New("the feature must be a point")
+	}
+
+	var coords []float64
+	ccc, err := json.Marshal(f.Geometry.Coordinates)
+	if err != nil {
+		return nil, errors.New("cannot marshal object")
+	}
+	err = json.Unmarshal(ccc, &coords)
+	if err != nil {
+		return nil, errors.New("cannot unmarshal object")
+	}
+	var pos = geometry.Point{}
+	pos.Lat = coords[1]
+	pos.Lng = coords[0]
+
+	return &pos, nil
+}
+
+// ToMultiPoint converts the Feature to MultiPoint type.
+func (f *Feature) ToMultiPoint() (*geometry.MultiPoint, error) {
+	if f.Geometry.GeoJSONType != geojson.MultiPoint {
+		return nil, errors.New("the feature must be a MultiPoint")
+	}
+
+	var m geometry.MultiPoint
+	var coords [][]float64
+	ccc, err := json.Marshal(f.Geometry.Coordinates)
+	if err != nil {
+		return nil, errors.New("cannot marshal object")
+	}
+	err = json.Unmarshal(ccc, &coords)
+	if err != nil {
+		return nil, errors.New("cannot unmarshal object")
+	}
+	for i := 0; i < len(coords); i++ {
+		p := geometry.NewPoint(coords[i][1], coords[i][0])
+		m.Coordinates = append(m.Coordinates, *p)
+	}
+	return &m, nil
+}
+
 // ToPolygon converts a Polygon Feature to Polygon geometry.
 func (f *Feature) ToPolygon() (*geometry.Polygon, error) {
 	if f.Geometry.GeoJSONType != geojson.Polygon {
@@ -88,7 +133,7 @@ func (f *Feature) ToPolygon() (*geometry.Polygon, error) {
 	}
 	poly, err := geometry.NewPolygon(coords)
 	if err != nil {
-		return nil, errors.New("cannot creat a new polygon")
+		return nil, errors.New("cannot create a new polygon")
 	}
 	return poly, nil
 
