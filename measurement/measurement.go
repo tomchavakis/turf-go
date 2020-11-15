@@ -9,6 +9,7 @@ import (
 	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
+	meta "github.com/tomchavakis/turf-go/meta/coordAll"
 )
 
 // Distance calculates the distance between two points in kilometers. This uses the Haversine formula
@@ -234,4 +235,42 @@ func ringArea(coords []geometry.Point) float64 {
 		total = total * constants.EarthRadius * constants.EarthRadius / 2
 	}
 	return total
+}
+
+// BBox takes a set of features, calculates the bbox of all input features, and returns a bounding box.
+func BBox(t interface{}) ([]float64, error) {
+	return bboxGeom(t, false)
+}
+
+func bboxGeom(t interface{}, excludeWrapCoord bool) ([]float64, error) {
+	coords, err := meta.CoordAll(t, &excludeWrapCoord)
+	if err != nil {
+		return nil, errors.New("cannot get coords")
+	}
+
+	return bboxCalculator(coords), nil
+}
+
+func bboxCalculator(coords []geometry.Point) []float64 {
+	var bbox []float64
+	bbox = append(bbox, math.Inf(+1))
+	bbox = append(bbox, math.Inf(+1))
+	bbox = append(bbox, math.Inf(-1))
+	bbox = append(bbox, math.Inf(-1))
+
+	for _, p := range coords {
+		if bbox[0] > p.Lng {
+			bbox[0] = p.Lng
+		}
+		if bbox[1] > p.Lat {
+			bbox[1] = p.Lat
+		}
+		if bbox[2] < p.Lng {
+			bbox[2] = p.Lng
+		}
+		if bbox[3] < p.Lat {
+			bbox[3] = p.Lat
+		}
+	}
+	return bbox
 }

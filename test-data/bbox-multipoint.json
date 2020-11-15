@@ -1,0 +1,13 @@
+{
+  "type": "Feature",
+  "properties": {},
+  "geometry": {
+    "type": "MultiPoint",
+    "coordinates": [
+      [102, -10],
+      [103, 1],
+      [104, 0],
+      [130, 4]
+    ]
+  }
+}

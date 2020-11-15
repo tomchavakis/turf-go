@@ -150,4 +150,5 @@ func TestCoordAllFeatureCollection(t *testing.T) {
 
 // TODO: Write Test after BBOX
 func TestCoordAllGeometryCollection(t *testing.T) {
+
 }
