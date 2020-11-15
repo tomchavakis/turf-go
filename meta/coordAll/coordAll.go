@@ -36,6 +36,13 @@ func CoordAll(t interface{}, excludeWrapCoord *bool) ([]geometry.Point, error) {
 			return nil, errors.New("exclude wrap coord can't be null")
 		}
 		return coordAllFeatureCollection(*gtp, *excludeWrapCoord)
+	case *geometry.Collection:
+		pts := []geometry.Point{}
+		for _, gmt := range gtp.Geometries {
+			snl, _ := coordsAllFromSingleGeometry(pts, gmt, *excludeWrapCoord)
+			pts = append(pts, snl...)
+		}
+		return pts, nil
 	}
 
 	return nil, nil

@@ -239,10 +239,6 @@ func ringArea(coords []geometry.Point) float64 {
 
 // BBox takes a set of features, calculates the bbox of all input features, and returns a bounding box.
 func BBox(t interface{}) ([]float64, error) {
-	// switch gtp := t.(type) {
-	// case *geometry.Point:
-	// return bboxPoint(*gtp)
-	// }
 	return bboxGeom(t, false)
 }
 

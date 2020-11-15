@@ -15,7 +15,7 @@ type Collection struct {
 
 // NewFeatureCollection initializes a new instance of FeatureCollection
 func NewFeatureCollection(features []Feature) (*Collection, error) {
-	return &Collection{Features: features}, nil
+	return &Collection{Features: features, Type: geojson.FeatureCollection}, nil
 }
 
 // CollectionFromJSON returns a new Collection by passing in a valid JSON string.
