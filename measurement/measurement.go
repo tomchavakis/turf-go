@@ -242,6 +242,27 @@ func BBox(t interface{}) ([]float64, error) {
 	return bboxGeom(t, false)
 }
 
+// Along Takes a line and returns a point at a specified distance along the line.
+func Along(ln geometry.LineString, distance float64) geometry.Point {
+	travelled := 0.0
+	for i := 0; i < len(ln.Coordinates); i++ {
+		if distance >= travelled && i == len(ln.Coordinates)-1 {
+			break
+		} else if travelled >= distance {
+			overshot := distance - travelled
+			if overshot == 0 {
+				return ln.Coordinates[i]
+			}
+			direction := PointBearing(ln.Coordinates[i], ln.Coordinates[i-1]) - 180
+			return Destination(ln.Coordinates[i], overshot, direction)
+		} else {
+			travelled += PointDistance(ln.Coordinates[i], ln.Coordinates[i+1])
+		}
+	}
+
+	return ln.Coordinates[len(ln.Coordinates)-1]
+}
+
 func bboxGeom(t interface{}, excludeWrapCoord bool) ([]float64, error) {
 	coords, err := meta.CoordAll(t, &excludeWrapCoord)
 	if err != nil {

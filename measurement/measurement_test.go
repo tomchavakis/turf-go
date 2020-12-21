@@ -27,6 +27,7 @@ const BBoxPolygon = "../test-data/bbox-polygon.json"
 const BBoxMultiLineString = "../test-data/bbox-multilinestring.json"
 const BBoxMultiPolygon = "../test-data/bbox-multipolygon.json"
 const BBoxGeometryMultiPolygon = "../test-data/bbox-geometry-multipolygon.json"
+const AlongDCLine = "../test-data/along-dc-line.json"
 
 func TestDistance(t *testing.T) {
 	d := Distance(-77.03653, 38.89768, -77.05173, 38.8973)
@@ -462,4 +463,109 @@ func TestGeometryCollection(t *testing.T) {
 	assert.Equal(t, bbox[1], -10.0)
 	assert.Equal(t, bbox[2], 130.0)
 	assert.Equal(t, bbox[3], 4.0)
+}
+
+func TestAlong(t *testing.T) {
+
+	gjson, err := utils.LoadJSONFixture(AlongDCLine)
+	assert.NoError(t, err, "cannot load geojson")
+
+	f, err := feature.FromJSON(gjson)
+	assert.NoError(t, err, "error loading geojson")
+
+	ln, err := f.ToLineString()
+	assert.NoError(t, err, "error converting to linestring")
+
+	p1 := Along(*ln, 1.0)
+	p2 := Along(*ln, 1.2)
+	p3 := Along(*ln, 1.4)
+	p4 := Along(*ln, 1.6)
+	p5 := Along(*ln, 1.8)
+	p6 := Along(*ln, 2.0)
+	p7 := Along(*ln, 100)
+	p8 := Along(*ln, 0.0)
+
+	fc := feature.Collection{
+		Type: geojson.FeatureCollection,
+		Features: []feature.Feature{
+			{
+				Type: geojson.Feature,
+				Geometry: geometry.Geometry{
+					GeoJSONType: geojson.Point,
+					Coordinates: []float64{
+						p1.Lng, p1.Lat,
+					},
+				},
+			},
+			{
+				Type: geojson.Feature,
+				Geometry: geometry.Geometry{
+					GeoJSONType: geojson.Point,
+					Coordinates: []float64{
+						p2.Lng, p2.Lat,
+					},
+				},
+			},
+			{
+				Type: geojson.Feature,
+				Geometry: geometry.Geometry{
+					GeoJSONType: geojson.Point,
+					Coordinates: []float64{
+						p3.Lng, p3.Lat,
+					},
+				},
+			},
+			{
+				Type: geojson.Feature,
+				Geometry: geometry.Geometry{
+					GeoJSONType: geojson.Point,
+					Coordinates: []float64{
+						p4.Lng, p4.Lat,
+					},
+				},
+			},
+			{
+				Type: geojson.Feature,
+				Geometry: geometry.Geometry{
+					GeoJSONType: geojson.Point,
+					Coordinates: []float64{
+						p5.Lng, p5.Lat,
+					},
+				},
+			},
+			{
+				Type: geojson.Feature,
+				Geometry: geometry.Geometry{
+					GeoJSONType: geojson.Point,
+					Coordinates: []float64{
+						p6.Lng, p6.Lat,
+					},
+				},
+			},
+			{
+				Type: geojson.Feature,
+				Geometry: geometry.Geometry{
+					GeoJSONType: geojson.Point,
+					Coordinates: []float64{
+						p7.Lng, p7.Lat,
+					},
+				},
+			},
+			{
+				Type: geojson.Feature,
+				Geometry: geometry.Geometry{
+					GeoJSONType: geojson.Point,
+					Coordinates: []float64{
+						p8.Lng, p8.Lat,
+					},
+				},
+			},
+		},
+	}
+
+	assert.Equal(t, len(fc.Features), 8, "features error")
+	p7f, err := fc.Features[7].Geometry.ToPoint()
+	assert.NoError(t, err)
+	assert.Equal(t, p7f.Lng, p8.Lng)
+	assert.Equal(t, p7f.Lat, p8.Lat)
 }
