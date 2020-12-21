@@ -23,7 +23,8 @@ const AreaFeatureCollection = "../test-data/area-feature-collection.json"
 const BBoxPoint = "../test-data/bbox-point.json"
 const BBoxMultiPoint = "../test-data/bbox-multipoint.json"
 const BBoxLineString = "../test-data/bbox-linestring.json"
-const BBoxPolygon = "../test-data/bbox-polygon.json"
+const BBoxPolygonLineString = "../test-data/bbox-polygon-linestring.json"
+const BBoxPoly = "../test-data/bbox-polygon.json"
 const BBoxMultiLineString = "../test-data/bbox-multilinestring.json"
 const BBoxMultiPolygon = "../test-data/bbox-multipolygon.json"
 const BBoxGeometryMultiPolygon = "../test-data/bbox-geometry-multipolygon.json"
@@ -318,8 +319,8 @@ func TestBBoxLineString(t *testing.T) {
 	assert.Equal(t, bbox[3], 4.0)
 }
 
-func TestBBoxPolygon(t *testing.T) {
-	gson, err := utils.LoadJSONFixture(BBoxPolygon)
+func TestBBoxPoly(t *testing.T) {
+	gson, err := utils.LoadJSONFixture(BBoxPoly)
 	assert.NoError(t, err, "cannot load geojson")
 
 	f, err := feature.FromJSON(gson)
@@ -378,6 +379,31 @@ func TestMultiPolygon(t *testing.T) {
 	assert.Equal(t, bbox[3], 3.0)
 }
 
+func TestBBoxPolygonFromLineString(t *testing.T) {
+	gson, err := utils.LoadJSONFixture(BBoxPolygonLineString)
+	assert.NoError(t, err, "cannot load geojson")
+
+	g, err := geometry.FromJSON(gson)
+	assert.NoError(t, err, "error while decoding geojson")
+	ln, err := g.ToLineString()
+	assert.NoError(t, err, "error converting to linestring")
+	// Use the lineString object to calculate its bounding area
+	bbox, err := BBox(ln)
+	assert.NoError(t, err, "error bbox")
+	// Use the boundingBox coordinates to create an actual BoundingBox object
+	boudingBox := geojson.BBOX{
+		West:  bbox[0],
+		South: bbox[1],
+		East:  bbox[2],
+		North: bbox[3],
+	}
+	f, err := BBoxPolygon(boudingBox, "")
+	assert.NoError(t, err, "error BBoxPolygon")
+
+	assert.NotNil(t, f, "bboxPolygon is nil")
+
+}
+
 func TestGeometry(t *testing.T) {
 	gson, err := utils.LoadJSONFixture(BBoxGeometryMultiPolygon)
 	assert.NoError(t, err, "cannot load geojson")
@@ -430,7 +456,7 @@ func TestGeometryCollection(t *testing.T) {
 	assert.NoError(t, err, "error while decoding geojson")
 
 	// Polygon
-	gsonPolygon, err := utils.LoadJSONFixture(BBoxPolygon)
+	gsonPolygon, err := utils.LoadJSONFixture(BBoxPoly)
 	assert.NoError(t, err, "cannot load geojson")
 
 	poly, err := feature.FromJSON(gsonPolygon)

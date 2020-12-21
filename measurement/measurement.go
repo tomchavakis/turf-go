@@ -1,6 +1,7 @@
 package measurement
 
 import (
+	"encoding/json"
 	"errors"
 	"math"
 
@@ -270,6 +271,64 @@ func bboxGeom(t interface{}, excludeWrapCoord bool) ([]float64, error) {
 	}
 
 	return bboxCalculator(coords), nil
+}
+
+// BBoxPolygon takes a BoundingBox and returns an equivalent polygon.
+func BBoxPolygon(bbox geojson.BBOX, id string) (*feature.Feature, error) {
+	coords := []geometry.Point{
+		{
+			Lat: bbox.South,
+			Lng: bbox.West,
+		},
+		{
+			Lat: bbox.South,
+			Lng: bbox.East,
+		},
+		{
+			Lat: bbox.North,
+			Lng: bbox.East,
+		},
+		{
+			Lat: bbox.North,
+			Lng: bbox.West,
+		},
+		{
+			Lat: bbox.South,
+			Lng: bbox.West,
+		},
+	}
+	lns := []geometry.LineString{}
+	ln, err := geometry.NewLineString(coords)
+	if err != nil {
+		return nil, err
+	}
+	lns = append(lns, *ln)
+	polygon, err := geometry.NewPolygon(lns)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := json.Marshal(polygon)
+	if err != nil {
+		return nil, err
+	}
+
+	geom, err := geometry.FromJSON(string(p))
+	if err != nil {
+		return nil, err
+	}
+	bar, err := BBox(bbox)
+	if err != nil {
+		return nil, err
+	}
+	f, err := feature.New(*geom, bar, nil)
+	// f, err := feature.FromJSON(string(p))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return f, nil
 }
 
 func bboxCalculator(coords []geometry.Point) []float64 {
