@@ -242,6 +242,15 @@ func BBox(t interface{}) ([]float64, error) {
 	return bboxGeom(t, false)
 }
 
+func bboxGeom(t interface{}, excludeWrapCoord bool) ([]float64, error) {
+	coords, err := meta.CoordAll(t, &excludeWrapCoord)
+	if err != nil {
+		return nil, errors.New("cannot get coords")
+	}
+
+	return bboxCalculator(coords), nil
+}
+
 // Along Takes a line and returns a point at a specified distance along the line.
 func Along(ln geometry.LineString, distance float64) geometry.Point {
 	travelled := 0.0
@@ -263,13 +272,48 @@ func Along(ln geometry.LineString, distance float64) geometry.Point {
 	return ln.Coordinates[len(ln.Coordinates)-1]
 }
 
-func bboxGeom(t interface{}, excludeWrapCoord bool) ([]float64, error) {
-	coords, err := meta.CoordAll(t, &excludeWrapCoord)
+// BBoxPolygon takes a BoundingBox and returns an equivalent polygon.
+func BBoxPolygon(bbox geojson.BBOX, id string) (*feature.Feature, error) {
+
+	var cds [][][]float64
+	coords := [][]float64{
+		{
+			bbox.South,
+			bbox.West,
+		},
+		{
+			bbox.South,
+			bbox.East,
+		},
+		{
+			bbox.North,
+			bbox.East,
+		},
+		{
+			bbox.North,
+			bbox.West,
+		},
+		{
+			bbox.South,
+			bbox.West,
+		},
+	}
+	cds = append(cds, coords)
+	bbbox, err := BBox(bbox)
 	if err != nil {
-		return nil, errors.New("cannot get coords")
+		return nil, err
+	}
+	geom := geometry.Geometry{
+		GeoJSONType: geojson.Polygon,
+		Coordinates: cds,
 	}
 
-	return bboxCalculator(coords), nil
+	f, err := feature.New(geom, bbbox, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return f, nil
 }
 
 func bboxCalculator(coords []geometry.Point) []float64 {
