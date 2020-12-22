@@ -392,15 +392,43 @@ func TestBBoxPolygonFromLineString(t *testing.T) {
 	assert.NoError(t, err, "error bbox")
 	// Use the boundingBox coordinates to create an actual BoundingBox object
 	boudingBox := geojson.BBOX{
-		West:  bbox[0],
-		South: bbox[1],
-		East:  bbox[2],
-		North: bbox[3],
+		West:  bbox[1],
+		South: bbox[0],
+		East:  bbox[3],
+		North: bbox[2],
 	}
 	f, err := BBoxPolygon(boudingBox, "")
 	assert.NoError(t, err, "error BBoxPolygon")
 
 	assert.NotNil(t, f, "bboxPolygon is nil")
+	poly, err := f.ToPolygon()
+	assert.NoError(t, err, "error feature to polygon")
+	assert.NotNil(t, poly, "feature to polygon error")
+	assert.Equal(t, len(poly.Coordinates[0].Coordinates), 5)
+	assert.Equal(t, poly.Coordinates[0].Coordinates[0], geometry.Point{
+		Lat: -10,
+		Lng: 102,
+	})
+
+	assert.Equal(t, poly.Coordinates[0].Coordinates[1], geometry.Point{
+		Lat: 4,
+		Lng: 102,
+	})
+
+	assert.Equal(t, poly.Coordinates[0].Coordinates[2], geometry.Point{
+		Lat: 4,
+		Lng: 130,
+	})
+
+	assert.Equal(t, poly.Coordinates[0].Coordinates[3], geometry.Point{
+		Lat: -10,
+		Lng: 130,
+	})
+
+	assert.Equal(t, poly.Coordinates[0].Coordinates[4], geometry.Point{
+		Lat: -10,
+		Lng: 102,
+	})
 
 }
 
