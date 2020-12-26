@@ -13,6 +13,7 @@ import (
 // occurs in a GeoJSON text.
 // https://tools.ietf.org/html/rfc7946#section-3.2
 type Feature struct {
+	ID string `json:"id"`
 	// A Feature object has a "Type" member with the value "Feature".
 	Type geojson.OBjectType `json:"type"`
 	// A Feature object has a member with the name "properties". The
@@ -29,8 +30,9 @@ type Feature struct {
 }
 
 // New initializes a new Feature
-func New(geometry geometry.Geometry, bbox []float64, properties map[string]interface{}) (*Feature, error) {
+func New(geometry geometry.Geometry, bbox []float64, properties map[string]interface{}, id string) (*Feature, error) {
 	return &Feature{
+		ID:         id,
 		Geometry:   geometry,
 		Properties: properties,
 		Type:       geojson.Feature,

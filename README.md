@@ -14,7 +14,7 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 - [x] bbox
 - [x] bboxPolygon
 - [x] bearing
-- [ ] center
+- [x] center
 - [ ] centerOfMass
 - [ ] centroid
 - [x] destination

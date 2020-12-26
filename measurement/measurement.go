@@ -308,7 +308,7 @@ func BBoxPolygon(bbox geojson.BBOX, id string) (*feature.Feature, error) {
 		Coordinates: cds,
 	}
 
-	f, err := feature.New(geom, bbbox, nil)
+	f, err := feature.New(geom, bbbox, nil, id)
 	if err != nil {
 		return nil, err
 	}
@@ -338,4 +338,37 @@ func bboxCalculator(coords []geometry.Point) []float64 {
 		}
 	}
 	return bbox
+}
+
+// CenterFeature takes a Feature and returns the absolute center of the Feature. Return a Feature with a Point geometry type.
+func CenterFeature(f feature.Feature, properties map[string]interface{}, id string) (*feature.Feature, error) {
+	fs := []feature.Feature{}
+	fs = append(fs, f)
+	fc, err := feature.NewFeatureCollection(fs)
+	if err != nil {
+		return nil, err
+	}
+	return CenterFeatureCollection(*fc, properties, id)
+}
+
+// CenterFeatureCollection takes a FeatureCollection and returns the absolute center of the Feature(s) in the FeatureCollection.
+func CenterFeatureCollection(fc feature.Collection, properties map[string]interface{}, id string) (*feature.Feature, error) {
+	ext, err := BBox(&fc)
+	if err != nil {
+		return nil, err
+	}
+
+	finalCenterLongtitude := (ext[0] + ext[2]) / 2
+	finalCenterLatitude := (ext[1] + ext[3]) / 2
+
+	coords := []float64{finalCenterLongtitude, finalCenterLatitude}
+	g := geometry.Geometry{
+		GeoJSONType: geojson.Point,
+		Coordinates: coords,
+	}
+	f, err := feature.New(g, ext, properties, id)
+	if err != nil {
+		return nil, err
+	}
+	return f, nil
 }

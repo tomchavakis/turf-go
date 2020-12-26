@@ -623,3 +623,79 @@ func TestAlong(t *testing.T) {
 	assert.Equal(t, p7f.Lng, p8.Lng)
 	assert.Equal(t, p7f.Lat, p8.Lat)
 }
+
+func TestCenterFeature(t *testing.T) {
+
+	gjson, err := utils.LoadJSONFixture(AreaPolygon)
+	assert.NoError(t, err, "cannot load polygon geojson")
+
+	ifs, err := feature.FromJSON(gjson)
+	assert.NoError(t, err, "error import JSON")
+
+	coords := []float64{133.5, -27.0}
+	g := geometry.Geometry{
+		GeoJSONType: geojson.Point,
+		Coordinates: coords,
+	}
+
+	ef, err := feature.New(g, nil, nil, "")
+	ef.Bbox = []float64{
+		113, -39, 154, -15,
+	}
+	assert.NoError(t, err, "error new feature")
+	cfs, err := CenterFeature(*ifs, nil, "")
+	assert.NoError(t, err, "error center feature")
+
+	assert.Equal(t, ef, cfs)
+}
+
+func TestCenterFeatureWithId(t *testing.T) {
+	id := "testId"
+	gjson, err := utils.LoadJSONFixture(AreaPolygon)
+	assert.NoError(t, err, "cannot load polygon geojson")
+
+	ifs, err := feature.FromJSON(gjson)
+	assert.NoError(t, err, "error new feature")
+	cfs, err := CenterFeature(*ifs, nil, id)
+	assert.NoError(t, err, "error center feature")
+	p, err := cfs.Geometry.ToPoint()
+	assert.NoError(t, err, "error geometry to point")
+	assert.Equal(t, p.Lng, 133.5)
+	assert.Equal(t, p.Lat, -27.0)
+	assert.NotNil(t, cfs.ID)
+}
+
+func TestCenterFeatureWithProperties(t *testing.T) {
+	properties := make(map[string]interface{})
+	properties["key"] = "value"
+	gjson, err := utils.LoadJSONFixture(AreaPolygon)
+	assert.NoError(t, err, "cannot load polygon geojson")
+
+	ifs, err := feature.FromJSON(gjson)
+	assert.NoError(t, err, "error new feature")
+	cfs, err := CenterFeature(*ifs, properties, "")
+	assert.NoError(t, err, "error center feature")
+	p, err := cfs.Geometry.ToPoint()
+	assert.NoError(t, err, "error geometry to point")
+	assert.Equal(t, p.Lng, 133.5)
+	assert.Equal(t, p.Lat, -27.0)
+	assert.NotNil(t, cfs.Properties, "nil properties")
+	assert.Equal(t, cfs.Properties, properties)
+}
+
+func TestCenterFeatureCollection(t *testing.T) {
+	gjson, err := utils.LoadJSONFixture(AreaFeatureCollection)
+	assert.NoError(t, err, "cannot load polygon geojson")
+
+	fc, err := feature.CollectionFromJSON(gjson)
+	assert.NoError(t, err, "error import JSON")
+
+	cf, err := CenterFeatureCollection(*fc, nil, "")
+	assert.NoError(t, err, "error center feature collection")
+	p, err := cf.Geometry.ToPoint()
+	assert.NoError(t, err, "error converting geometry to point")
+	assert.NotNil(t, p, "point is nil")
+	assert.Equal(t, p.Lng, 4.1748046875)
+	assert.Equal(t, p.Lat, 47.214224817196836)
+
+}
