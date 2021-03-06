@@ -3,16 +3,20 @@ package conversions
 import (
 	"math"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestDegreesToRadians(t *testing.T) {
 	r := DegreesToRadians(180)
-	assert.Equal(t, r, math.Pi, "error converting degrees to radians")
+
+	if r != math.Pi {
+		t.Errorf("degrees to radians = %f; want %f", r, math.Pi)
+	}
 }
 
 func TestRadiansToDegrees(t *testing.T) {
 	r := RadiansToDegrees(math.Pi)
-	assert.Equal(t, r, float64(180), "error converting radians to degrees")
+
+	if r != float64(180) {
+		t.Error("error converting radians to degrees")
+	}
 }

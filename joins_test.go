@@ -1,13 +1,13 @@
 package turf
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
+	"github.com/tomchavakis/turf-go/assert"
 	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 	"github.com/tomchavakis/turf-go/utils"
+	"reflect"
+	"testing"
 )
 
 const PolyWithHoleFixture = "test-data/poly-with-hole.json"
@@ -150,11 +150,16 @@ func TestFeatureCollection(t *testing.T) {
 
 	ml := []geometry.LineString{}
 	ln, err := geometry.NewLineString(coords)
-	assert.Nil(t, err, "error message %s", err)
+	if err != nil {
+		t.Errorf("NewLineString error %v", err)
+	}
+
 	ml = append(ml, *ln)
 
 	poly, err := geometry.NewPolygon(ml)
-	assert.Nil(t, err, "error message %s", err)
+	if err != nil {
+		t.Errorf("NewPolygon error %v", err)
+	}
 
 	ptIn := geometry.Point{
 		Lat: 50,
@@ -167,12 +172,21 @@ func TestFeatureCollection(t *testing.T) {
 	}
 
 	pip, err := PointInPolygon(ptIn, *poly)
-	assert.Nil(t, err, "error message %s", err)
-	assert.True(t, pip, "Point in not in Polygon")
+	if err != nil {
+		t.Errorf("PointInPolygon error %v", err)
+	}
+
+	if !pip {
+		t.Error("Point is not in Polygon")
+	}
 
 	pop, err := PointInPolygon(ptOut, *poly)
-	assert.Nil(t, err, "error message %s", err)
-	assert.False(t, pop, "Point in not in Polygon")
+	if err != nil {
+		t.Errorf("PointInPolygon error %v", err)
+	}
+	if pop {
+		t.Error("Point is not in Polygon")
+	}
 }
 
 func TestPolyWithHole(t *testing.T) {
@@ -190,36 +204,61 @@ func TestPolyWithHole(t *testing.T) {
 	}
 
 	fix, err := utils.LoadJSONFixture(PolyWithHoleFixture)
-	assert.NoError(t, err, "error loading fixture")
+	if err != nil {
+		t.Errorf("LoadJSONFixture error %v", err)
+	}
 
 	f, err := feature.FromJSON(fix)
-	assert.NoError(t, err, "error decoding json to feature")
-	assert.NotNil(t, f, "feature is nil")
+	if err != nil {
+		t.Errorf("FromJSON error %v", err)
+	}
+	if f == nil {
+		t.Error("feature cannot be nil")
+	}
 
-	assert.Equal(t, f.Type, geojson.Feature, "invalid base type")
+	assert.Equal(t, f.Type, geojson.Feature)
 	props := map[string]interface{}{
 		"name":     "Poly with Hole",
 		"value":    float64(3),
 		"filename": "poly-with-hole.json",
 	}
-	assert.Equal(t, f.Properties, props, "invalid properties")
-	assert.Equal(t, f.Bbox, []float64{-86.73980712890625, 36.173495506147, -86.67303085327148, 36.23084281427824}, "invalid properties object")
-	assert.Equal(t, f.Geometry.GeoJSONType, geojson.Polygon, "invalid geojson type")
+	if !reflect.DeepEqual(f.Properties, props) {
+		t.Error("Properties are not equal")
+	}
+	if !reflect.DeepEqual(f.Bbox, []float64{-86.73980712890625, 36.173495506147, -86.67303085327148, 36.23084281427824}) {
+		t.Error("BBOX error")
+	}
+
+	assert.Equal(t, f.Geometry.GeoJSONType, geojson.Polygon)
 
 	poly, err := f.ToPolygon()
-	assert.NoError(t, err, "error converting feature to polygon")
+	if err != nil {
+		t.Errorf("ToPolygon error: %v", err)
+	}
 
 	pih, err := PointInPolygon(ptInHole, *poly)
-	assert.Nil(t, err, "error message %s", err)
-	assert.False(t, pih, "Point in hole is not in Polygon")
+	if err != nil {
+		t.Errorf("PointInPolygon error: %v", err)
+	}
+	if pih {
+		t.Error("Point in hole is not in Polygon")
+	}
 
 	pip, err := PointInPolygon(ptInPoly, *poly)
-	assert.Nil(t, err, "error message %s", err)
-	assert.True(t, pip, "Point in poly is not in Polygon")
+	if err != nil {
+		t.Errorf("PointInPolygon error: %v", err)
+	}
+	if !pip {
+		t.Error("Point in poly is not in Polygon")
+	}
 
 	pop, err := PointInPolygon(ptOutsidePoly, *poly)
-	assert.Nil(t, err, "error message %s", err)
-	assert.False(t, pop, "Point in not in Polygon")
+	if err != nil {
+		t.Errorf("PointInPolygon error: %v", err)
+	}
+	if pop {
+		t.Error("Point is not in Polygon")
+	}
 }
 
 func TestMultiPolyWithHole(t *testing.T) {
@@ -241,34 +280,54 @@ func TestMultiPolyWithHole(t *testing.T) {
 	}
 
 	fixture, err := utils.LoadJSONFixture(MultiPolyWithHoleFixture)
-	assert.NoError(t, err, "error loading fixture")
+	if err != nil {
+		t.Errorf("LoadJSONFixture error: %v", err)
+	}
 
 	f, err := feature.FromJSON(fixture)
-	assert.NoError(t, err, "error decoding json to feature")
-	assert.NotNil(t, f, "feature is nil")
+	if err != nil {
+		t.Errorf("FromJSON error: %v", err)
+	}
+	if f == nil {
+		t.Error("Feature cannot be nil")
+	}
 
-	assert.Equal(t, f.Type, geojson.Feature, "invalid base type")
+	assert.Equal(t, f.Type, geojson.Feature)
 	props := map[string]interface{}{
 		"name":     "Poly with Hole",
 		"value":    float64(3),
 		"filename": "poly-with-hole.json",
 	}
-	assert.Equal(t, f.Properties, props, "invalid properties")
-	assert.Equal(t, f.Bbox, []float64{-86.77362442016602, 36.170862616662134, -86.67303085327148, 36.23084281427824}, "invalid properties object")
-	assert.Equal(t, f.Geometry.GeoJSONType, geojson.MultiPolygon, "invalid geojson type")
+	if !reflect.DeepEqual(f.Properties, props) {
+		t.Error("Properties are not equal")
+	}
+	if !reflect.DeepEqual(f.Bbox, []float64{-86.77362442016602, 36.170862616662134, -86.67303085327148, 36.23084281427824}) {
+		t.Error("BBOX error")
+	}
+	assert.Equal(t, f.Geometry.GeoJSONType, geojson.MultiPolygon)
 
 	poly, err := f.ToMultiPolygon()
-	assert.NoError(t, err, "error converting feature to MultiPolygon")
+	if err != nil {
+		t.Errorf("ToMultiPolygon error: %v", err)
+	}
 
 	pih := PointInMultiPolygon(ptInHole, *poly)
-	assert.False(t, pih, "Point in hole is not in MultiPolygon")
+	if pih {
+		t.Error("Point in hole is not in MultiPolygon")
+	}
 
 	pip := PointInMultiPolygon(ptInPoly, *poly)
-	assert.True(t, pip, "Point in poly is not in MultiPolygon")
+	if !pip {
+		t.Error("Point in poly is not in MultiPolygon")
+	}
 
 	pip2 := PointInMultiPolygon(ptInPoly2, *poly)
-	assert.True(t, pip2, "Point in poly is not in MultiPolygon")
+	if !pip2 {
+		t.Error("Point in poly is not in MultiPolygon")
+	}
 
 	pop := PointInMultiPolygon(ptOutsidePoly, *poly)
-	assert.False(t, pop, "Point in not in MultiPolygon")
+	if pop {
+		t.Error("Point in not in MultiPolygon")
+	}
 }

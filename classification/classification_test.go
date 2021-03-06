@@ -3,7 +3,6 @@ package classification
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
@@ -19,7 +18,9 @@ func TestNearestPoint(t *testing.T) {
 
 	refPoint := geometry.Point{Lat: 39.50, Lng: -75.33}
 
-	r := NearestPoint(refPoint, points)
+	np := NearestPoint(refPoint, points)
 
-	assert.Equal(t, r, p3, "error computing the Nearest Point")
+	if np != p3 {
+		t.Errorf("nearestPoint = %f; want %f", np, p3)
+	}
 }
