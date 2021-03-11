@@ -1,13 +1,15 @@
 package measurement
 
 import (
+	"reflect"
+	"testing"
+
 	"github.com/tomchavakis/turf-go/assert"
+	"github.com/tomchavakis/turf-go/constants"
 	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 	"github.com/tomchavakis/turf-go/utils"
-	"reflect"
-	"testing"
 )
 
 const LineDistanceRouteOne = "../test-data/route1.json"
@@ -30,15 +32,45 @@ const BBoxGeometryMultiPolygon = "../test-data/bbox-geometry-multipolygon.json"
 const AlongDCLine = "../test-data/along-dc-line.json"
 
 func TestDistance(t *testing.T) {
-	d := Distance(-77.03653, 38.89768, -77.05173, 38.8973)
-	assert.Equal(t, d, 1.317556974720262)
+	d, err := Distance(-75.343, 39.984, -75.534, 39.123, constants.UnitMiles)
+	if err != nil {
+		t.Errorf("distance error %v", err)
+	}
+	assert.Equal(t, d, 60.35329997171416)
+
+	d, err = Distance(-75.343, 39.984, -75.534, 39.123, constants.UnitNauticalMiles)
+	if err != nil {
+		t.Errorf("distance error %v", err)
+	}
+	assert.Equal(t, d, 52.445583795722655)
+
+	d, err = Distance(-75.343, 39.984, -75.534, 39.123, constants.UnitKilometers)
+	if err != nil {
+		t.Errorf("distance error %v", err)
+	}
+	assert.Equal(t, d, 97.12922118967835)
+
+	d, err = Distance(-75.343, 39.984, -75.534, 39.123, constants.UnitRadians)
+	if err != nil {
+		t.Errorf("distance error %v", err)
+	}
+	assert.Equal(t, d, 0.015245501024842149)
+
+	d, err = Distance(-75.343, 39.984, -75.534, 39.123, constants.UnitDegrees)
+	if err != nil {
+		t.Errorf("distance error %v", err)
+	}
+	assert.Equal(t, d, 0.8724834600465156)
 }
 
 func TestPointDistance(t *testing.T) {
-	p1 := geometry.Point{Lng: -77.03653, Lat: 38.89768}
-	p2 := geometry.Point{Lng: -77.05173, Lat: 38.8973}
-	d := PointDistance(p1, p2)
-	assert.Equal(t, d, 1.317556974720262)
+	p1 := geometry.Point{Lng: -75.343, Lat: 39.984}
+	p2 := geometry.Point{Lng: -75.534, Lat: 39.123}
+	d, err := PointDistance(p1, p2, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("distance error %v", err)
+	}
+	assert.Equal(t, d, 97.12922118967835)
 }
 
 func TestBearing(t *testing.T) {
@@ -97,8 +129,11 @@ func TestMidPoint(t *testing.T) {
 
 func TestDestinationPoint(t *testing.T) {
 	p := geometry.Point{Lat: 23.34, Lng: 43.25}
-	d := Destination(p, 10, 230)
-	e := geometry.Point{Lat: 23.28223959663299, Lng: 43.175084627817945}
+	d, err := Destination(p, 10, 230, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("Destination error %v", err)
+	}
+	e := geometry.Point{Lat: 23.282174951509955, Lng: 43.17500084522403}
 
 	if e.Lat != d.Lat && e.Lng != d.Lng {
 		t.Errorf("error calculating the destination point")
@@ -121,7 +156,10 @@ func TestLineDistanceWhenRouteIsPoint(t *testing.T) {
 	ln, err := geometry.NewLineString(coords)
 	assert.Equal(t, err, nil)
 
-	d := Length(*ln)
+	d, err := Length(*ln, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("Length error %v", err)
+	}
 	assert.Equal(t, d, 0.0)
 }
 
@@ -180,11 +218,17 @@ func TestLineDistanceWithGeometries(t *testing.T) {
 		t.Errorf("ToLineString error: %v", err)
 	}
 
-	l1 := Length(*ls1)
-	l2 := Length(*ls2)
+	l1, err := Length(*ls1, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("distance error %v", err)
+	}
+	l2, err := Length(*ls2, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("distance error %v", err)
+	}
 
-	assert.Equal(t, l1, 326.10170358450773)
-	assert.Equal(t, l2, 742.3766554982323)
+	assert.Equal(t, l1, 325.737252622811)
+	assert.Equal(t, l2, 741.5469760360743)
 }
 
 func TestLineDistancePolygon(t *testing.T) {
@@ -202,8 +246,11 @@ func TestLineDistancePolygon(t *testing.T) {
 	if err != nil {
 		t.Errorf("ToPolygon error: %v", err)
 	}
-	l := Length(*polygon)
-	assert.Equal(t, l, 5.603584981972479)
+	l, err := Length(*polygon, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("Length error %v", err)
+	}
+	assert.Equal(t, l, 5.597322420589979)
 }
 
 func TestLineDistanceMultiLineString(t *testing.T) {
@@ -221,8 +268,11 @@ func TestLineDistanceMultiLineString(t *testing.T) {
 	if err != nil {
 		t.Errorf("ToMultiLineString error: %v", err)
 	}
-	l := Length(*mls)
-	assert.Equal(t, l, 4.709104188828164)
+	l, err := Length(*mls, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("distance error %v", err)
+	}
+	assert.Equal(t, l, 4.703841298351085)
 }
 
 func TestAreaPolygonAsFeature(t *testing.T) {
@@ -240,7 +290,7 @@ func TestAreaPolygonAsFeature(t *testing.T) {
 		t.Errorf("Area error: %v", err)
 	}
 
-	assert.Equal(t, area, 7766240.997209013)
+	assert.Equal(t, int(area), 7748891609977)
 }
 
 func TestAreaMultiPolygonAsFeature(t *testing.T) {
@@ -259,7 +309,7 @@ func TestAreaMultiPolygonAsFeature(t *testing.T) {
 		t.Errorf("Area error: %v", err)
 	}
 
-	assert.Equal(t, area, 24771.477332558756)
+	assert.Equal(t, int(area), 24716139112)
 }
 
 func TestAreaPolygonAsGeometry(t *testing.T) {
@@ -278,7 +328,7 @@ func TestAreaPolygonAsGeometry(t *testing.T) {
 		t.Errorf("Area error: %v", err)
 	}
 
-	assert.Equal(t, area, 11.017976596496059)
+	assert.Equal(t, int(area), 10993362)
 
 }
 
@@ -303,7 +353,7 @@ func TestAreaPolygon(t *testing.T) {
 		t.Errorf("Area error: %v", err)
 	}
 
-	assert.Equal(t, area, 11.017976596496059)
+	assert.Equal(t, int(area), 10993362)
 }
 
 func TestAreaMultiPolygon(t *testing.T) {
@@ -327,7 +377,7 @@ func TestAreaMultiPolygon(t *testing.T) {
 		t.Errorf("Area error: %v", err)
 	}
 
-	assert.Equal(t, area, 24771.477332558756)
+	assert.Equal(t, int(area), 24716139112)
 }
 
 func TestAreaFeatureCollection(t *testing.T) {
@@ -346,7 +396,7 @@ func TestAreaFeatureCollection(t *testing.T) {
 		t.Errorf("Area error: %v", err)
 	}
 
-	assert.Equal(t, area, 294852.3713607366)
+	assert.Equal(t, int(area), 294193686165)
 }
 
 func TestBBoxPoint(t *testing.T) {
@@ -539,33 +589,33 @@ func TestBBoxPolygonFromLineString(t *testing.T) {
 	if poly == nil {
 		t.Error("feature to polygon error")
 	}
+	if poly != nil {
+		assert.Equal(t, len(poly.Coordinates[0].Coordinates), 5)
+		assert.Equal(t, poly.Coordinates[0].Coordinates[0], geometry.Point{
+			Lat: -10,
+			Lng: 102,
+		})
 
-	assert.Equal(t, len(poly.Coordinates[0].Coordinates), 5)
-	assert.Equal(t, poly.Coordinates[0].Coordinates[0], geometry.Point{
-		Lat: -10,
-		Lng: 102,
-	})
+		assert.Equal(t, poly.Coordinates[0].Coordinates[1], geometry.Point{
+			Lat: 4,
+			Lng: 102,
+		})
 
-	assert.Equal(t, poly.Coordinates[0].Coordinates[1], geometry.Point{
-		Lat: 4,
-		Lng: 102,
-	})
+		assert.Equal(t, poly.Coordinates[0].Coordinates[2], geometry.Point{
+			Lat: 4,
+			Lng: 130,
+		})
 
-	assert.Equal(t, poly.Coordinates[0].Coordinates[2], geometry.Point{
-		Lat: 4,
-		Lng: 130,
-	})
+		assert.Equal(t, poly.Coordinates[0].Coordinates[3], geometry.Point{
+			Lat: -10,
+			Lng: 130,
+		})
 
-	assert.Equal(t, poly.Coordinates[0].Coordinates[3], geometry.Point{
-		Lat: -10,
-		Lng: 130,
-	})
-
-	assert.Equal(t, poly.Coordinates[0].Coordinates[4], geometry.Point{
-		Lat: -10,
-		Lng: 102,
-	})
-
+		assert.Equal(t, poly.Coordinates[0].Coordinates[4], geometry.Point{
+			Lat: -10,
+			Lng: 102,
+		})
+	}
 }
 
 func TestGeometry(t *testing.T) {
@@ -710,14 +760,38 @@ func TestAlong(t *testing.T) {
 		t.Errorf("ToLineString error: %v", err)
 	}
 
-	p1 := Along(*ln, 1.0)
-	p2 := Along(*ln, 1.2)
-	p3 := Along(*ln, 1.4)
-	p4 := Along(*ln, 1.6)
-	p5 := Along(*ln, 1.8)
-	p6 := Along(*ln, 2.0)
-	p7 := Along(*ln, 100)
-	p8 := Along(*ln, 0.0)
+	p1, err := Along(*ln, 1.0, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("Along error %v", err)
+	}
+	p2, err := Along(*ln, 1.2, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("Along error %v", err)
+	}
+	p3, err := Along(*ln, 1.4, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("Along error %v", err)
+	}
+	p4, err := Along(*ln, 1.6, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("Along error %v", err)
+	}
+	p5, err := Along(*ln, 1.8, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("Along error %v", err)
+	}
+	p6, err := Along(*ln, 2.0, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("Along error %v", err)
+	}
+	p7, err := Along(*ln, 100, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("Along error %v", err)
+	}
+	p8, err := Along(*ln, 0.0, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("Along error %v", err)
+	}
 
 	fc := feature.Collection{
 		Type: geojson.FeatureCollection,
@@ -923,7 +997,8 @@ func TestCenterFeatureCollection(t *testing.T) {
 	if p == nil {
 		t.Error("point cannot be empty")
 	}
-	assert.Equal(t, p.Lng, 4.1748046875)
-	assert.Equal(t, p.Lat, 47.214224817196836)
-
+	if p != nil {
+		assert.Equal(t, p.Lng, 4.1748046875)
+		assert.Equal(t, p.Lat, 47.214224817196836)
+	}
 }

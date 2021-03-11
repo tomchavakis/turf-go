@@ -1,13 +1,14 @@
 package turf
 
 import (
+	"reflect"
+	"testing"
+
 	"github.com/tomchavakis/turf-go/assert"
 	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 	"github.com/tomchavakis/turf-go/utils"
-	"reflect"
-	"testing"
 )
 
 const PolyWithHoleFixture = "test-data/poly-with-hole.json"
@@ -216,7 +217,9 @@ func TestPolyWithHole(t *testing.T) {
 		t.Error("feature cannot be nil")
 	}
 
-	assert.Equal(t, f.Type, geojson.Feature)
+	if f != nil {
+		assert.Equal(t, f.Type, geojson.Feature)
+	}
 	props := map[string]interface{}{
 		"name":     "Poly with Hole",
 		"value":    float64(3),
@@ -291,43 +294,44 @@ func TestMultiPolyWithHole(t *testing.T) {
 	if f == nil {
 		t.Error("Feature cannot be nil")
 	}
+	if f != nil {
+		assert.Equal(t, f.Type, geojson.Feature)
+		props := map[string]interface{}{
+			"name":     "Poly with Hole",
+			"value":    float64(3),
+			"filename": "poly-with-hole.json",
+		}
+		if !reflect.DeepEqual(f.Properties, props) {
+			t.Error("Properties are not equal")
+		}
+		if !reflect.DeepEqual(f.Bbox, []float64{-86.77362442016602, 36.170862616662134, -86.67303085327148, 36.23084281427824}) {
+			t.Error("BBOX error")
+		}
+		assert.Equal(t, f.Geometry.GeoJSONType, geojson.MultiPolygon)
 
-	assert.Equal(t, f.Type, geojson.Feature)
-	props := map[string]interface{}{
-		"name":     "Poly with Hole",
-		"value":    float64(3),
-		"filename": "poly-with-hole.json",
-	}
-	if !reflect.DeepEqual(f.Properties, props) {
-		t.Error("Properties are not equal")
-	}
-	if !reflect.DeepEqual(f.Bbox, []float64{-86.77362442016602, 36.170862616662134, -86.67303085327148, 36.23084281427824}) {
-		t.Error("BBOX error")
-	}
-	assert.Equal(t, f.Geometry.GeoJSONType, geojson.MultiPolygon)
+		poly, err := f.ToMultiPolygon()
+		if err != nil {
+			t.Errorf("ToMultiPolygon error: %v", err)
+		}
 
-	poly, err := f.ToMultiPolygon()
-	if err != nil {
-		t.Errorf("ToMultiPolygon error: %v", err)
-	}
+		pih := PointInMultiPolygon(ptInHole, *poly)
+		if pih {
+			t.Error("Point in hole is not in MultiPolygon")
+		}
 
-	pih := PointInMultiPolygon(ptInHole, *poly)
-	if pih {
-		t.Error("Point in hole is not in MultiPolygon")
-	}
+		pip := PointInMultiPolygon(ptInPoly, *poly)
+		if !pip {
+			t.Error("Point in poly is not in MultiPolygon")
+		}
 
-	pip := PointInMultiPolygon(ptInPoly, *poly)
-	if !pip {
-		t.Error("Point in poly is not in MultiPolygon")
-	}
+		pip2 := PointInMultiPolygon(ptInPoly2, *poly)
+		if !pip2 {
+			t.Error("Point in poly is not in MultiPolygon")
+		}
 
-	pip2 := PointInMultiPolygon(ptInPoly2, *poly)
-	if !pip2 {
-		t.Error("Point in poly is not in MultiPolygon")
-	}
-
-	pop := PointInMultiPolygon(ptOutsidePoly, *poly)
-	if pop {
-		t.Error("Point in not in MultiPolygon")
+		pop := PointInMultiPolygon(ptOutsidePoly, *poly)
+		if pop {
+			t.Error("Point in not in MultiPolygon")
+		}
 	}
 }

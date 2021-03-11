@@ -13,7 +13,7 @@ import (
 )
 
 // Distance calculates the distance between two points in kilometers. This uses the Haversine formula
-func Distance(lon1 float64, lat1 float64, lon2 float64, lat2 float64) float64 {
+func Distance(lon1 float64, lat1 float64, lon2 float64, lat2 float64, units string) (float64, error) {
 
 	dLat := conversions.DegreesToRadians(lat2 - lat1)
 	dLng := conversions.DegreesToRadians(lon2 - lon1)
@@ -22,13 +22,14 @@ func Distance(lon1 float64, lat1 float64, lon2 float64, lat2 float64) float64 {
 
 	a := math.Pow(math.Sin(dLat/2), 2) + math.Pow(math.Sin(dLng/2), 2)*math.Cos(lat1R)*math.Cos(lat2R)
 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
-	d := constants.EarthRadius * c
-	return d
+	// d := constants.EarthRadius * c
+
+	return conversions.RadiansToLength(c, units)
 }
 
 // PointDistance calculates the distance between two points
-func PointDistance(p1 geometry.Point, p2 geometry.Point) float64 {
-	return Distance(p1.Lng, p1.Lat, p2.Lng, p2.Lat)
+func PointDistance(p1 geometry.Point, p2 geometry.Point, units string) (float64, error) {
+	return Distance(p1.Lng, p1.Lat, p2.Lng, p2.Lat, units)
 }
 
 // Bearing finds the geographic bearing between two given points.
@@ -74,56 +75,80 @@ func MidPoint(p1 geometry.Point, p2 geometry.Point) geometry.Point {
 }
 
 // Destination returns a destination point according to a reference point, a distance in km and a bearing in degrees from True North.
-func Destination(p1 geometry.Point, distance float64, bearing float64) geometry.Point {
+func Destination(p1 geometry.Point, distance float64, bearing float64, units string) (*geometry.Point, error) {
 	lonR := conversions.DegreesToRadians(p1.Lng)
 	latR := conversions.DegreesToRadians(p1.Lat)
 	bR := conversions.DegreesToRadians(bearing)
-	dLat := math.Asin(math.Sin(latR)*math.Cos(distance/constants.EarthRadius) + math.Cos(latR)*math.Sin(distance/constants.EarthRadius)*math.Cos(bR))
-	dLng := lonR + math.Atan2(math.Sin(bR)*math.Sin(distance/constants.EarthRadius)*math.Cos(latR), math.Cos(distance/constants.EarthRadius)-math.Sin(latR)*math.Sin(dLat))
+	radians, err := conversions.LengthToRadians(distance, units)
+	if err != nil {
+		return nil, err
+	}
+	dLat := math.Asin(math.Sin(latR)*math.Cos(radians) + math.Cos(latR)*math.Sin(radians)*math.Cos(bR))
+	dLng := lonR + math.Atan2(math.Sin(bR)*math.Sin(radians)*math.Cos(latR), math.Cos(radians)-math.Sin(latR)*math.Sin(dLat))
 
-	return geometry.Point{Lat: conversions.RadiansToDegrees(dLat), Lng: conversions.RadiansToDegrees(dLng)}
+	return &geometry.Point{Lat: conversions.RadiansToDegrees(dLat), Lng: conversions.RadiansToDegrees(dLng)}, nil
 }
 
 // Length measures the length of a geometry.
-func Length(t interface{}) float64 {
+func Length(t interface{}, units string) (float64, error) {
 
 	result := 0.0
+	var err error
+	var l float64
 	switch gtp := t.(type) {
 	case []geometry.Point:
-		result = lenth(gtp)
+		l, err = lenth(gtp, units)
+		result = l
 	case geometry.LineString:
-		result = lenth(gtp.Coordinates)
+		l, err = lenth(gtp.Coordinates, units)
+		result = l
 	case geometry.MultiLineString:
 		coords := gtp.Coordinates // []LineString
 		for _, c := range coords {
-			result += lenth(c.Coordinates)
+			l, err = lenth(c.Coordinates, units)
+			if err != nil {
+				break
+			}
+			result += l
 		}
 	case geometry.Polygon:
 		for _, c := range gtp.Coordinates {
-			result += lenth(c.Coordinates)
+			l, err = lenth(c.Coordinates, units)
+			if err != nil {
+				break
+			}
+			result += l
 		}
 	case geometry.MultiPolygon:
 		coords := gtp.Coordinates
 		for _, coord := range coords {
 			for _, pl := range coord.Coordinates {
-				result += lenth(pl.Coordinates)
+				l, err = lenth(pl.Coordinates, units)
+				if err != nil {
+					break
+				}
+				result += l
 			}
 		}
 	}
-	return result
+	return result, err
 }
 
 // http://turfjs.org/docs/#linedistance
-func lenth(coords []geometry.Point) float64 {
+func lenth(coords []geometry.Point, units string) (float64, error) {
 	travelled := 0.0
 	prevCoords := coords[0]
 	var currentCoords geometry.Point
 	for i := 1; i < len(coords); i++ {
 		currentCoords = coords[i]
-		travelled += PointDistance(prevCoords, currentCoords)
+		pd, err := PointDistance(prevCoords, currentCoords, units)
+		if err != nil {
+			return 0.0, err
+		}
+		travelled += pd
 		prevCoords = currentCoords
 	}
-	return travelled
+	return travelled, nil
 }
 
 // Area takes a geometry type and returns its area in square meters
@@ -232,7 +257,7 @@ func ringArea(coords []geometry.Point) float64 {
 			p3 = coords[upperIndex]
 			total += (conversions.DegreesToRadians(p3.Lng) - conversions.DegreesToRadians(p1.Lng)) * math.Sin(conversions.DegreesToRadians(p2.Lat))
 		}
-		total = total * constants.EarthRadius * constants.EarthRadius / 2
+		total = total * constants.EarthRadius * constants.EarthRadius / 2.0
 	}
 	return total
 }
@@ -252,7 +277,7 @@ func bboxGeom(t interface{}, excludeWrapCoord bool) ([]float64, error) {
 }
 
 // Along Takes a line and returns a point at a specified distance along the line.
-func Along(ln geometry.LineString, distance float64) geometry.Point {
+func Along(ln geometry.LineString, distance float64, units string) (*geometry.Point, error) {
 	travelled := 0.0
 	for i := 0; i < len(ln.Coordinates); i++ {
 		if distance >= travelled && i == len(ln.Coordinates)-1 {
@@ -260,16 +285,25 @@ func Along(ln geometry.LineString, distance float64) geometry.Point {
 		} else if travelled >= distance {
 			overshot := distance - travelled
 			if overshot == 0 {
-				return ln.Coordinates[i]
+				return &ln.Coordinates[i], nil
 			}
 			direction := PointBearing(ln.Coordinates[i], ln.Coordinates[i-1]) - 180
-			return Destination(ln.Coordinates[i], overshot, direction)
+
+			d, err := Destination(ln.Coordinates[i], overshot, direction, units)
+			if err != nil {
+				return nil, err
+			}
+			return d, nil
 		} else {
-			travelled += PointDistance(ln.Coordinates[i], ln.Coordinates[i+1])
+			pd, err := PointDistance(ln.Coordinates[i], ln.Coordinates[i+1], units)
+			if err != nil {
+				return nil, err
+			}
+			travelled += pd
 		}
 	}
 
-	return ln.Coordinates[len(ln.Coordinates)-1]
+	return &ln.Coordinates[len(ln.Coordinates)-1], nil
 }
 
 // BBoxPolygon takes a BoundingBox and returns an equivalent polygon.

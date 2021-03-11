@@ -19,10 +19,16 @@ const (
 	UnitMeters = "meters"
 	// UnitCentimeters is a unit of length in the metric system, equal to one hundredth of a meter.
 	UnitCentimeters = "centimeters"
-	// UnitMetres is the base unit of length in the International System of Units (SI)
+	// UnitCentimetres (international spelling) is a unit of length in the metric system, equal to one hundredth of a meter.
+	UnitCentimetres = "centimetres"
+	// UnitMetres (international spelling) is the base unit of length in the International System of Units (SI)
 	UnitMetres = "metres"
 	// UnitKimometres is a unit of length in the metric system, equal to one thousand metres.
 	UnitKimometres = "kilometres"
+	// UnitFeet  is a unit of length in the imperial and US customary systems of measurement.
+	UnitFeet = "feet"
+	// UnitDefault us the default unit used in most Turf methods when no other unit is specified is kilometers
+	UnitDefault = "kilometres"
 	// EarthRadius is the radius of the earch in km
-	EarthRadius = 6378.137
+	EarthRadius = 6371008.8
 )
