@@ -3,6 +3,7 @@ package classification
 import (
 	"testing"
 
+	"github.com/tomchavakis/turf-go/constants"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
@@ -18,9 +19,11 @@ func TestNearestPoint(t *testing.T) {
 
 	refPoint := geometry.Point{Lat: 39.50, Lng: -75.33}
 
-	np := NearestPoint(refPoint, points)
-
-	if np != p3 {
+	np, err := NearestPoint(refPoint, points, constants.UnitDefault)
+	if err != nil {
+		t.Errorf("nearest point error: %v", err)
+	}
+	if np != nil && *np != p3 {
 		t.Errorf("nearestPoint = %f; want %f", np, p3)
 	}
 }
