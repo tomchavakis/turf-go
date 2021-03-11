@@ -163,11 +163,11 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 ## Unit Conversion 
 - [x] bearingToAzimuth
 - [ ]  convertArea
-- [ ]  convertLength
+- [x]  convertLength
 - [x] degreesToRadians
-- [ ]  lengthToRadians
-- [ ]  lengthToDegrees
-- [ ]  radiansToLength
+- [x]  lengthToRadians
+- [x]  lengthToDegrees
+- [x]  radiansToLength
 - [x] radiansToDegrees
 - [ ]  toMercator
 - [ ]  toWgs84
