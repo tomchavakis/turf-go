@@ -6,10 +6,10 @@ import (
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
-// EPSG:3857 sometimes knows as EPSG:900913
-// https://spatialreference.org/ref/sr-org/7483/
-// +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs
 // ConvertToMercator converts lon/lat values to 900913 x/y
+// EPSG:3857 sometimes knows as EPSG:900913
+// https://spatialreference.org/ref/sr-org/epsg3857-wgs84-web-mercator-auxiliary-sphere/
+// +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs
 func ConvertToMercator(p geometry.Point) []float64 {
 	rad := math.Pi / 180.0
 	a := 6378137.0
@@ -53,6 +53,8 @@ func ConvertToWgs84(p []float64) geometry.Point {
 		Lat: (math.Pi*0.5 - 2.0*math.Atan(math.Exp(-p[1]/a))) * dgs,
 	}
 }
+
+//TODO: Implement Convert - needs coordEach
 
 func sign(x float64) int {
 	if x < 0 {

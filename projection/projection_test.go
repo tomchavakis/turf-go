@@ -23,3 +23,13 @@ func TestConvertToWgs84(t *testing.T) {
 	assert.Equal(t, wgs84Point.Lng, -71.0)
 	assert.Equal(t, wgs84Point.Lat, 40.99999999999998) //=41.0
 }
+
+func TestProjectionPoint(t *testing.T) {
+	p := geometry.Point{
+		Lat: 40.0,
+		Lng: 10.0,
+	}
+	mercator := ConvertToMercator(p)
+	wgs84 := ConvertToWgs84(mercator)
+	assert.Equal(t, p, wgs84)
+}
