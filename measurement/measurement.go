@@ -494,3 +494,51 @@ func calcEnvelopeCoords(coords []geometry.Point) (*feature.Feature, error) {
 
 	return f, nil
 }
+
+// CentroidFeature takes a Feature and returns the centroid of the Feature. Return a Feature with a Point geometry type.
+func CentroidFeature(f feature.Feature, properties map[string]interface{}, id string) (*feature.Feature, error) {
+	fs := []feature.Feature{}
+	fs = append(fs, f)
+	fc, err := feature.NewFeatureCollection(fs)
+	if err != nil {
+		return nil, err
+	}
+	return CentroidFeatureCollection(*fc, properties, id)
+}
+
+// CentroidFeatureCollection takes a FeatureCollection and returns the centroid of the Feature(s) in the FeatureCollection.
+func CentroidFeatureCollection(fc feature.Collection, properties map[string]interface{}, id string) (*feature.Feature, error) {
+	excludeWrapCoord := true
+	coords, err := meta.CoordAll(&fc, &excludeWrapCoord)
+
+	if err != nil {
+		return nil, errors.New("cannot get coords")
+	}
+
+	coordsLength := len(coords)
+	if coordsLength < 1 {
+		return nil, errors.New("no coordinates found")
+	}
+
+	xSum := 0.0
+	ySum := 0.0
+
+	for i := 0; i < coordsLength; i++ {
+		xSum += coords[i].Lng;
+		ySum += coords[i].Lat;
+	}
+
+	finalCenterLongtitude := xSum/float64(coordsLength)
+	finalCenterLatitude := ySum/float64(coordsLength)
+
+	coordinates := []float64{finalCenterLongtitude, finalCenterLatitude}
+	g := geometry.Geometry{
+		GeoJSONType: geojson.Point,
+		Coordinates: coordinates,
+	}
+	f, err := feature.New(g, bboxCalculator(coords), properties, id)
+	if err != nil {
+		return nil, err
+	}
+	return f, nil
+}
