@@ -2,14 +2,13 @@ package measurement
 
 import (
 	"errors"
-	"math"
-
 	"github.com/tomchavakis/turf-go/constants"
 	"github.com/tomchavakis/turf-go/conversions"
 	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
-	meta "github.com/tomchavakis/turf-go/meta/coordAll"
+	"github.com/tomchavakis/turf-go/meta/coordAll"
+	"math"
 )
 
 // Distance calculates the distance between two points in kilometers. This uses the Haversine formula
@@ -404,5 +403,94 @@ func CenterFeatureCollection(fc feature.Collection, properties map[string]interf
 	if err != nil {
 		return nil, err
 	}
+	return f, nil
+}
+
+// Envelope takes a FeatureCollection and returns a rectangular Polygon than encompasses all vertices.
+func Envelope(fc feature.Collection) (*feature.Feature, error) {
+	excludeWrapCoord := false
+	coords, err := meta.CoordAll(&fc, &excludeWrapCoord)
+	if err != nil {
+		return nil, errors.New("cannot get coords")
+	}
+
+	return calcEnvelopeCoords(coords)
+}
+
+func calcEnvelopeCoords(coords []geometry.Point) (*feature.Feature, error) {
+	if len(coords) == 0 {
+		return nil, errors.New("Empty coordinates")
+	}
+	northStar := coords[0]
+	southStar := coords[0]
+	westStar := coords[0]
+	eastStar := coords[0]
+
+	for _, p := range coords {
+
+		if northStar.Lat < p.Lat {
+			northStar = p
+		}
+
+		if southStar.Lat > p.Lat {
+			southStar = p
+		}
+
+		if westStar.Lng > p.Lng {
+			westStar = p
+		}
+
+		if eastStar.Lng < p.Lng {
+			eastStar = p
+		}
+	}
+
+	var cds [][][]float64
+	polygonCoords := [][]float64{
+		{
+			northStar.Lat,
+			westStar.Lng,
+		},
+		{
+			southStar.Lat,
+			westStar.Lng,
+		},
+		{
+			southStar.Lat,
+			eastStar.Lng,
+		},
+		{
+			northStar.Lat,
+			eastStar.Lng,
+		},
+		{
+			northStar.Lat,
+			westStar.Lng,
+		},
+	}
+
+	stars := []geometry.Point {
+		northStar,
+		southStar,
+		eastStar,
+		westStar,
+	}
+
+	cds = append(cds, polygonCoords)
+	bbox := bboxCalculator(stars)
+	bbbox, err := BBox(bbox)
+	if err != nil {
+		return nil, err
+	}
+	geom := geometry.Geometry{
+		GeoJSONType: geojson.Polygon,
+		Coordinates: cds,
+	}
+
+	f, err := feature.New(geom, bbbox, nil, "")
+	if err != nil {
+		return nil, err
+	}
+
 	return f, nil
 }
