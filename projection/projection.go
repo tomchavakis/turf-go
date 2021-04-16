@@ -6,13 +6,12 @@ import (
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
-// ConvertToMercator converts lon/lat values to 900913 x/y
-// EPSG:3857 sometimes knows as EPSG:900913
+const a = 6378137.0
+
+// ConvertToMercator converts a WGS84 GeoJSON object to Mercator (EPSG:3857 sometimes knows as EPSG:900913) projection
 // https://spatialreference.org/ref/sr-org/epsg3857-wgs84-web-mercator-auxiliary-sphere/
-// +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs
 func ConvertToMercator(p geometry.Point) []float64 {
 	rad := math.Pi / 180.0
-	a := 6378137.0
 	maxExtend := 2 * math.Pi * a / 2.0 // 20037508.342789244
 
 	// longitudes passing the 180th meridian
@@ -46,7 +45,6 @@ func ConvertToMercator(p geometry.Point) []float64 {
 // ConvertToWgs84 convert 900913 x/y values to lon/lat
 func ConvertToWgs84(p []float64) geometry.Point {
 	dgs := 180.0 / math.Pi
-	a := 6378137.0
 
 	return geometry.Point{
 		Lng: p[0] * dgs / a,

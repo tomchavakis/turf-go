@@ -30,5 +30,8 @@ const (
 	// UnitDefault us the default unit used in most Turf methods when no other unit is specified is kilometers
 	UnitDefault = "kilometres"
 	// EarthRadius is the radius of the earch in km
+	// Approximate radius of the earth in meters. The radius at the equator is ~6378137 and at the poles is ~6356752. https://en.wikipedia.org/wiki/World_Geodetic_System#WGS84
+	// 6371008.8 is one published "average radius" see https://en.wikipedia.org/wiki/Earth_radius#Mean_radius, or ftp://athena.fsv.cvut.cz/ZFG/grs80-Moritz.pdf p.4
+	// https://github.com/Turfjs/turf/issues/635
 	EarthRadius = 6371008.8
 )
