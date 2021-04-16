@@ -1,6 +1,14 @@
 package constants
 
 const (
+	// UnitAcresis a unit of land measurement in the British Imperial and United States Customary systems, equal to 43,560 square feet, or 4,840 square yards. One acre is equivalent to 0.4047 hectare (4,047 square metres
+	UnitAcres = "acres"
+	// UnitHectares is a unit of area in the metric system equal to 100 ares, or 10,000 square metres, and the equivalent of 2.471 acres in the British Imperial System and the United States Customary measure. The term is derived from the Latin area and from hect, an irregular contraction of the Greek word for hundred.
+	UnitHectares = "hectares"
+	// UnitMillimeters spelled as millimeter, unit of length equal to 0.001 metre in the metric system and the equivalent of 0.03937 inch
+	UnitMillimeters = "millimeters"
+	// UnitMillimetres spelled as millimeter, unit of length equal to 0.001 metre in the metric system and the equivalent of 0.03937 inch
+	UnitMillimetres = "millimetres"
 	// UnitMiles is an English unit of length of linear measure equal to 5.280 feet, or 1.760 yards, and standardised as exactly 1,609.344 meters by international agreement in 1959.
 	UnitMiles = "miles"
 	// UnitNauticalMiles us known as the knot. Nautical miles and knots are almost universally used for aeronautical and maritime navigation, because of their relationship with degrees and minutes of latitute

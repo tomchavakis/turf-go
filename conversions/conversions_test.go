@@ -115,6 +115,53 @@ func TestConvertLength(t *testing.T) {
 
 }
 
+func TestConvertArea(t *testing.T) {
+	a, err := ConvertArea(1000.0, constants.UnitMetres, constants.UnitKilometers)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, a, 0.001)
+
+	b, err := ConvertArea(1, constants.UnitKilometers, constants.UnitMiles)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, b, 0.386)
+
+	c, err := ConvertArea(1, constants.UnitMiles, constants.UnitKilometers)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, c, 2.5906735751295336)
+
+	d, err := ConvertArea(1, constants.UnitMeters, constants.UnitCentimeters)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, d, 10000.0)
+
+	f, err := ConvertArea(100, constants.UnitMeters, constants.UnitAcres)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, f, 0.0247105)
+
+	g, err := ConvertArea(100, "", constants.UnitYards)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, g, 119.59900459999999)
+
+	h, err := ConvertArea(100, constants.UnitMeters, constants.UnitFeet)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, h, 1076.3910417)
+
+	i, err := ConvertArea(100000, constants.UnitFeet, "")
+	assert.Equal(t, err, nil)
+	assert.Equal(t, i, 0.009290303999749462)
+
+	j, err := ConvertArea(1, constants.UnitMeters, constants.UnitHectares)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, j, 0.0001)
+
+	_, err = ConvertArea(-1, constants.UnitMeters, constants.UnitMillimeters)
+	assert.Equal(t, err.Error(), "area must be a positive number")
+
+	_, err = ConvertArea(1, "foo", "bar")
+	assert.Equal(t, err.Error(), "invalid original units")
+
+	_, err = ConvertArea(1, constants.UnitMeters, "bar")
+	assert.Equal(t, err.Error(), "invalid finalUnits units")
+}
+
 func TestDegreesToRadians(t *testing.T) {
 	r := DegreesToRadians(180)
 

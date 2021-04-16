@@ -23,6 +23,23 @@ var factors = map[string]float64{
 	constants.UnitKimometres:    constants.EarthRadius / 1000.0,
 }
 
+var areaFactors = map[string]float64{
+	constants.UnitAcres:       0.000247105,
+	constants.UnitCentimeters: 10000.0,
+	constants.UnitCentimetres: 1000.0,
+	constants.UnitFeet:        10.763910417,
+	constants.UnitHectares:    0.0001,
+	constants.UnitInches:      1550.003100006,
+	constants.UnitKilometers:  0.000001,
+	constants.UnitKimometres:  0.000001,
+	constants.UnitMeters:      1.0,
+	constants.UnitMetres:      1.0,
+	constants.UnitMiles:       3.86e-7,
+	constants.UnitMillimeters: 1000000.0,
+	constants.UnitMillimetres: 1000000.0,
+	constants.UnitYards:       1.195990046,
+}
+
 // DegreesToRadians converts an angle in degrees to radians.
 // degrees angle between 0 and 360
 func DegreesToRadians(degrees float64) float64 {
@@ -42,6 +59,10 @@ func ToKilometersPerHour(knots float64) float64 {
 // LengthToDegrees convert a distance measurement (assuming a spherical Earth) from a real-world unit into degrees
 // Valid units: miles, nauticalmiles, inches, yards, meters, metres, centimeters, kilometres, feet
 func LengthToDegrees(distance float64, units string) (float64, error) {
+	if units == "" {
+		units = constants.UnitDefault
+	}
+
 	ltr, err := LengthToRadians(distance, units)
 	if err != nil {
 		return 0.0, err
@@ -77,6 +98,10 @@ func RadiansToLength(radians float64, units string) (float64, error) {
 
 // ConvertLength converts a distance to a different unit specified.
 func ConvertLength(distance float64, originalUnits string, finalUnits string) (float64, error) {
+	if originalUnits == "" {
+		originalUnits = constants.UnitMeters
+	}
+
 	if finalUnits == "" {
 		finalUnits = constants.UnitDefault
 	}
@@ -87,6 +112,36 @@ func ConvertLength(distance float64, originalUnits string, finalUnits string) (f
 		return 0, err
 	}
 	return RadiansToLength(ltr, finalUnits)
+}
+
+// ConvertArea converts an area to the requested unit
+func ConvertArea(area float64, originalUnits string, finalUnits string) (float64, error) {
+	if originalUnits == "" {
+		originalUnits = constants.UnitMeters
+	}
+
+	if finalUnits == "" {
+		finalUnits = constants.UnitKilometers
+	}
+	if area < 0 {
+		return 0.0, errors.New("area must be a positive number")
+	}
+
+	if !validateAreaUnit(originalUnits) {
+		return 0.0, errors.New("invalid original units")
+	}
+
+	if !validateAreaUnit(finalUnits) {
+		return 0.0, errors.New("invalid finalUnits units")
+	}
+	startFactor := areaFactors[originalUnits]
+	finalFactor := areaFactors[finalUnits]
+	return (area / startFactor) * finalFactor, nil
+}
+
+func validateAreaUnit(units string) bool {
+	_, ok := areaFactors[units]
+	return ok
 }
 
 func validateUnit(units string) bool {
