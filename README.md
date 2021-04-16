@@ -19,7 +19,7 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 - [ ] centroid
 - [x] destination
 - [x] distance
-- [ ] envelope
+- [x] envelope
 - [x] length
 - [x] midpoint
 - [ ] pointOnFeature

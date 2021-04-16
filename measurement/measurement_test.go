@@ -1002,3 +1002,60 @@ func TestCenterFeatureCollection(t *testing.T) {
 		assert.Equal(t, p.Lat, 47.214224817196836)
 	}
 }
+
+func TestEnvelope(t *testing.T) {
+	gjson, err := utils.LoadJSONFixture(AreaFeatureCollection)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error: %v", err)
+	}
+
+	fc, err := feature.CollectionFromJSON(gjson)
+	if err != nil {
+		t.Errorf("CollectionFromJSON error: %v", err)
+	}
+	f, err := Envelope(*fc)
+
+	if err != nil {
+		t.Errorf("Envelope error: %v", err)
+	}
+
+	if f == nil {
+		t.Error("Polygon is nil")
+	}
+
+	poly, err := f.ToPolygon()
+	if err != nil {
+		t.Errorf("ToPolygon error: %v", err)
+	}
+
+	if poly == nil {
+		t.Error("feature to polygon error")
+	}
+	if poly != nil {
+		assert.Equal(t, len(poly.Coordinates[0].Coordinates), 5)
+		assert.Equal(t, poly.Coordinates[0].Coordinates[0], geometry.Point{
+			Lat: -3.515625,
+			Lng: 49.83798245308484,
+		})
+
+		assert.Equal(t, poly.Coordinates[0].Coordinates[1], geometry.Point{
+			Lat: -3.515625,
+			Lng: 44.59046718130883,
+		})
+
+		assert.Equal(t, poly.Coordinates[0].Coordinates[2], geometry.Point{
+			Lat: 11.865234375,
+			Lng: 44.59046718130883,
+		})
+
+		assert.Equal(t, poly.Coordinates[0].Coordinates[3], geometry.Point{
+			Lat: 11.865234375,
+			Lng: 49.83798245308484,
+		})
+
+		assert.Equal(t, poly.Coordinates[0].Coordinates[4], geometry.Point{
+			Lat: -3.515625,
+			Lng: 49.83798245308484,
+		})
+	}
+}
