@@ -7,7 +7,7 @@ const (
 	UnitHectares = "hectares"
 	// UnitMillimeters spelled as millimeter, unit of length equal to 0.001 metre in the metric system and the equivalent of 0.03937 inch
 	UnitMillimeters = "millimeters"
-	// UnitMillimetres spelled as millimeter, unit of length equal to 0.001 metre in the metric system and the equivalent of 0.03937 inch
+	// UnitMillimetres spelled as millimetre, unit of length equal to 0.001 metre in the metric system and the equivalent of 0.03937 inch
 	UnitMillimetres = "millimetres"
 	// UnitMiles is an English unit of length of linear measure equal to 5.280 feet, or 1.760 yards, and standardised as exactly 1,609.344 meters by international agreement in 1959.
 	UnitMiles = "miles"
