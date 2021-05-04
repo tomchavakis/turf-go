@@ -21,6 +21,7 @@ const AreaMultiPolygon = "../test-data/area-multipolygon.json"
 const AreaGeomPolygon = "../test-data/area-geom-polygon.json"
 const AreaGeomMultiPolygon = "../test-data/area-geom-multipolgon.json"
 const AreaFeatureCollection = "../test-data/area-feature-collection.json"
+const ImbalancedPolygon = "../test-data/imbalanced-polygon.json"
 const BBoxPoint = "../test-data/bbox-point.json"
 const BBoxMultiPoint = "../test-data/bbox-multipoint.json"
 const BBoxLineString = "../test-data/bbox-linestring.json"
@@ -1057,5 +1058,127 @@ func TestEnvelope(t *testing.T) {
 			Lat: -3.515625,
 			Lng: 49.83798245308484,
 		})
+	}
+}
+
+
+func TestCentroidFeature(t *testing.T) {
+	gjson, err := utils.LoadJSONFixture(AreaPolygon)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error: %v", err)
+	}
+
+	f, err := feature.FromJSON(gjson)
+	if err != nil {
+		t.Errorf("FeatureFromJSON error: %v", err)
+	}
+	cf, err := CentroidFeature(*f, nil, "")
+	if err != nil {
+		t.Errorf("CentroidFeature error: %v", err)
+	}
+
+	p, err := cf.Geometry.ToPoint()
+	if err != nil {
+		t.Errorf("ToPoint error: %v", err)
+	}
+
+	if p == nil {
+		t.Error("point cannot be empty")
+	}
+	if p != nil {
+		assert.Equal(t, p.Lng, 133.0)
+		assert.Equal(t, p.Lat, -26.857142857142858)
+	}
+}
+
+func TestImbalancedPolygonFeature(t *testing.T) {
+	gjson, err := utils.LoadJSONFixture(ImbalancedPolygon)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error: %v", err)
+	}
+
+	f, err := feature.FromJSON(gjson)
+	if err != nil {
+		t.Errorf("FeatureFromJSON error: %v", err)
+	}
+	cf, err := CentroidFeature(*f, nil, "")
+	if err != nil {
+		t.Errorf("CentroidFeature error: %v", err)
+	}
+
+	p, err := cf.Geometry.ToPoint()
+	if err != nil {
+		t.Errorf("ToPoint error: %v", err)
+	}
+
+	if p == nil {
+		t.Error("point cannot be empty")
+	}
+	if p != nil {
+		assert.Equal(t, p.Lng, 4.851791984156558)
+		assert.Equal(t, p.Lat, 45.78143055383553)
+	}
+}
+
+
+func TestCentroidFeatureWithProperties(t *testing.T) {
+	properties := make(map[string]interface{})
+	properties["key"] = "value"
+	gjson, err := utils.LoadJSONFixture(AreaPolygon)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error: %v", err)
+	}
+
+	ifs, err := feature.FromJSON(gjson)
+	if err != nil {
+		t.Errorf("FromJSON error: %v", err)
+	}
+
+	cfs, err := CentroidFeature(*ifs, properties, "")
+	if err != nil {
+		t.Errorf("CentroidFeature error: %v", err)
+	}
+
+	p, err := cfs.Geometry.ToPoint()
+	if err != nil {
+		t.Errorf("ToPoint error: %v", err)
+	}
+
+	assert.Equal(t, p.Lng, 133.0)
+	assert.Equal(t, p.Lat, -26.857142857142858)
+	if cfs.Properties == nil {
+		t.Errorf("properties cannot be empty")
+	}
+	if !reflect.DeepEqual(cfs.Properties, properties) {
+		t.Error("properties are not equal")
+	}
+}
+
+func TestCentroidFeatureCollection(t *testing.T) {
+	gjson, err := utils.LoadJSONFixture(AreaFeatureCollection)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error: %v", err)
+	}
+
+	fc, err := feature.CollectionFromJSON(gjson)
+	if err != nil {
+		t.Errorf("CollectionFromJSON error: %v", err)
+	}
+	cf, err := CentroidFeatureCollection(*fc, nil, "")
+	if err != nil {
+		t.Errorf("CentroidFeatureCollection error: %v", err)
+	}
+
+	p, err := cf.Geometry.ToPoint()
+	if err != nil {
+		t.Errorf("ToPoint error: %v", err)
+	}
+
+	if p == nil {
+		t.Error("point cannot be empty")
+	}
+	if p != nil {
+		assert.Equal(t, p.Lng, 6.774169921875)
+		assert.Equal(t, p.Lat, 47.486422855836416)
 	}
 }
