@@ -132,6 +132,10 @@ func TestConvertArea(t *testing.T) {
 	assert.Equal(t, err, nil)
 	assert.Equal(t, d, 10000.0)
 
+	k, err := ConvertArea(1, constants.UnitMeters, constants.UnitCentimetres)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, k, 10000.0)
+
 	f, err := ConvertArea(100, constants.UnitMeters, constants.UnitAcres)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, f, 0.0247105)

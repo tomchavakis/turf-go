@@ -26,7 +26,7 @@ var factors = map[string]float64{
 var areaFactors = map[string]float64{
 	constants.UnitAcres:       0.000247105,
 	constants.UnitCentimeters: 10000.0,
-	constants.UnitCentimetres: 1000.0,
+	constants.UnitCentimetres: 10000.0,
 	constants.UnitFeet:        10.763910417,
 	constants.UnitHectares:    0.0001,
 	constants.UnitInches:      1550.003100006,
