@@ -120,6 +120,10 @@ func TestConvertArea(t *testing.T) {
 	assert.Equal(t, err, nil)
 	assert.Equal(t, a, 0.001)
 
+	a2, err := ConvertArea(1000.0, constants.UnitMeters, constants.UnitKilometers)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, a2, 0.001)
+
 	b, err := ConvertArea(1, constants.UnitKilometers, constants.UnitMiles)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, b, 0.386)
@@ -132,13 +136,25 @@ func TestConvertArea(t *testing.T) {
 	assert.Equal(t, err, nil)
 	assert.Equal(t, d, 10000.0)
 
-	k, err := ConvertArea(1, constants.UnitMeters, constants.UnitCentimetres)
+	d2, err := ConvertArea(1, constants.UnitMeters, constants.UnitCentimetres)
 	assert.Equal(t, err, nil)
-	assert.Equal(t, k, 10000.0)
+	assert.Equal(t, d2, 10000.0)
+
+	d3, err := ConvertArea(1, constants.UnitMetres, constants.UnitCentimetres)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, d3, 10000.0)
+
+	d4, err := ConvertArea(1, constants.UnitMetres, constants.UnitCentimeters)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, d4, 10000.0)
 
 	f, err := ConvertArea(100, constants.UnitMeters, constants.UnitAcres)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, f, 0.0247105)
+
+	f2, err := ConvertArea(100, constants.UnitMetres, constants.UnitAcres)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, f2, 0.0247105)
 
 	g, err := ConvertArea(100, "", constants.UnitYards)
 	assert.Equal(t, err, nil)
@@ -148,6 +164,10 @@ func TestConvertArea(t *testing.T) {
 	assert.Equal(t, err, nil)
 	assert.Equal(t, h, 1076.3910417)
 
+	h2, err := ConvertArea(100, constants.UnitMetres, constants.UnitFeet)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, h2, 1076.3910417)
+
 	i, err := ConvertArea(100000, constants.UnitFeet, "")
 	assert.Equal(t, err, nil)
 	assert.Equal(t, i, 0.009290303999749462)
@@ -156,7 +176,14 @@ func TestConvertArea(t *testing.T) {
 	assert.Equal(t, err, nil)
 	assert.Equal(t, j, 0.0001)
 
+	j2, err := ConvertArea(1, constants.UnitMetres, constants.UnitHectares)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, j2, 0.0001)
+
 	_, err = ConvertArea(-1, constants.UnitMeters, constants.UnitMillimeters)
+	assert.Equal(t, err.Error(), "area must be a positive number")
+
+	_, err = ConvertArea(-1, constants.UnitMetres, constants.UnitMillimeters)
 	assert.Equal(t, err.Error(), "area must be a positive number")
 
 	_, err = ConvertArea(1, "foo", "bar")
