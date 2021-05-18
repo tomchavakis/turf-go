@@ -2,13 +2,14 @@ package measurement
 
 import (
 	"errors"
+	"math"
+
 	"github.com/tomchavakis/turf-go/constants"
 	"github.com/tomchavakis/turf-go/conversions"
 	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 	"github.com/tomchavakis/turf-go/meta/coordAll"
-	"math"
 )
 
 // Distance calculates the distance between two points in kilometers. This uses the Haversine formula
@@ -469,7 +470,7 @@ func calcEnvelopeCoords(coords []geometry.Point) (*feature.Feature, error) {
 		},
 	}
 
-	stars := []geometry.Point {
+	stars := []geometry.Point{
 		northStar,
 		southStar,
 		eastStar,
