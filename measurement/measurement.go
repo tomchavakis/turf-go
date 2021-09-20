@@ -469,7 +469,7 @@ func calcEnvelopeCoords(coords []geometry.Point) (*feature.Feature, error) {
 		},
 	}
 
-	stars := []geometry.Point {
+	stars := []geometry.Point{
 		northStar,
 		southStar,
 		eastStar,
