@@ -1,10 +1,11 @@
 package meta
 
 import (
+	"testing"
+
 	"github.com/tomchavakis/turf-go/assert"
 	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
-	"testing"
 )
 
 func TestCoordAllPont(t *testing.T) {

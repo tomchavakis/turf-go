@@ -122,7 +122,7 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 
 ## Meta
 - [x] coordAll
-- [ ] coordEach
+- [x] coordEach
 - [ ] coordReduce
 - [ ] featureEach
 - [ ] featureReduce
