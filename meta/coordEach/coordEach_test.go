@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/tomchavakis/turf-go/assert"
+	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
@@ -290,4 +291,32 @@ func TestCoordEachMultiPolygon(t *testing.T) {
 
 	assert.Equal(t, pts[9].Lat, 0.0)
 	assert.Equal(t, pts[9].Lng, 100.0)
+}
+
+func TestCoordAllFeatureCollection(t *testing.T) {
+	json := "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\",\"properties\": {\"population\": 200},\"geometry\": {\"type\": \"Point\",\"coordinates\": [-112.0372, 46.608058]}}]}"
+	c, err := feature.CollectionFromJSON(json)
+	if err != nil {
+		t.Errorf("CollectionFromJSON error %v", err)
+	}
+
+	if c == nil {
+		t.Error("feature collection can't be nil")
+	}
+
+	fnc := func(p geometry.Point) geometry.Point {
+		p.Lat = p.Lat + 0.1
+		p.Lng = p.Lng + 0.1
+		return p
+	}
+
+	exclude := true
+	pts, err := CoordEach(c, fnc, &exclude)
+	if err != nil {
+		t.Errorf("CoordEach error %v", err)
+	}
+
+	assert.Equal(t, len(pts), 1)
+	assert.Equal(t, pts[0].Lat, 46.708058)
+	assert.Equal(t, pts[0].Lng, -111.9372)
 }

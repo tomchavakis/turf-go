@@ -3,6 +3,8 @@ package meta
 import (
 	"errors"
 
+	"github.com/tomchavakis/turf-go/geojson"
+	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
@@ -22,7 +24,7 @@ func CoordEach(geojson interface{}, callbackFn func(geometry.Point) geometry.Poi
 	case *geometry.MultiPoint:
 		return coordEachMultiPoint(*gtp, callbackFn), nil
 	case *geometry.LineString:
-		return callbackLineString(*gtp, callbackFn), nil
+		return coordEachLineString(*gtp, callbackFn), nil
 	case *geometry.Polygon:
 		if excludeWrapCoord == nil {
 			return nil, errors.New("exclude wrap coord can't be null")
@@ -35,23 +37,22 @@ func CoordEach(geojson interface{}, callbackFn func(geometry.Point) geometry.Poi
 			return nil, errors.New("exclude wrap coord can't be null")
 		}
 		return coordEachMultiPolygon(*gtp, *excludeWrapCoord, callbackFn), nil
-		// case *feature.Feature:
-		// 	return coordAllFeature(*gtp, *excludeWrapCoord)
-		// case *feature.Collection:
-		// 	if excludeWrapCoord == nil {
-		// 		return nil, errors.New("exclude wrap coord can't be null")
-		// 	}
-		// 	return coordAllFeatureCollection(*gtp, *excludeWrapCoord)
-		// case *geometry.Collection:
-		// 	pts := []geometry.Point{}
-		// 	for _, gmt := range gtp.Geometries {
-		// 		snl, _ := coordsAllFromSingleGeometry(pts, gmt, *excludeWrapCoord)
-		// 		pts = append(pts, snl...)
-		// 	}
-		// 	return pts, nil
-		// }
-
+	case *feature.Feature:
+		return coordEachFeature(*gtp, *excludeWrapCoord, callbackFn)
+	case *feature.Collection:
+		if excludeWrapCoord == nil {
+			return nil, errors.New("exclude wrap coord can't be null")
+		}
+		return coordEachFeatureCollection(*gtp, *excludeWrapCoord, callbackFn)
+	case *geometry.Collection:
+		pts := []geometry.Point{}
+		for _, gmt := range gtp.Geometries {
+			snl, _ := coordsEachFromSingleGeometry(pts, gmt, *excludeWrapCoord, callbackFn)
+			pts = append(pts, snl...)
+		}
+		return pts, nil
 	}
+
 	return nil, nil
 }
 
@@ -75,9 +76,12 @@ func appendCoordsToMultiPoint(coords []geometry.Point, m geometry.MultiPoint, ca
 	return coords
 }
 
-func callbackLineString(ln geometry.LineString, callbackFn func(geometry.Point) geometry.Point) []geometry.Point {
-	var coords []geometry.Point
-	for _, v := range ln.Coordinates {
+func coordEachLineString(m geometry.LineString, callbackFn func(geometry.Point) geometry.Point) []geometry.Point {
+	return appendCoordsToLineString([]geometry.Point{}, m, callbackFn)
+}
+
+func appendCoordsToLineString(coords []geometry.Point, l geometry.LineString, callbackFn func(geometry.Point) geometry.Point) []geometry.Point {
+	for _, v := range l.Coordinates {
 		np := callbackFn(v)
 		coords = append(coords, np)
 	}
@@ -137,4 +141,79 @@ func appendCoordToMultiPolygon(coords []geometry.Point, mp geometry.MultiPolygon
 		}
 	}
 	return coords
+}
+
+func coordEachFeature(f feature.Feature, excludeWrapCoord bool, callbackFn func(geometry.Point) geometry.Point) ([]geometry.Point, error) {
+	return appendCoordToFeature([]geometry.Point{}, f, excludeWrapCoord, callbackFn)
+}
+
+func appendCoordToFeature(pointList []geometry.Point, f feature.Feature, excludeWrapCoord bool, callbackFn func(geometry.Point) geometry.Point) ([]geometry.Point, error) {
+
+	coords, err := coordsEachFromSingleGeometry(pointList, f.Geometry, excludeWrapCoord, callbackFn)
+	if err != nil {
+		return nil, err
+	}
+	return coords, nil
+}
+func coordsEachFromSingleGeometry(pointList []geometry.Point, g geometry.Geometry, excludeWrapCoord bool, callbackFn func(geometry.Point) geometry.Point) ([]geometry.Point, error) {
+
+	if g.GeoJSONType == geojson.Point {
+		p, err := g.ToPoint()
+		if err != nil {
+			return nil, err
+		}
+		np := callbackFn(*p)
+		pointList = append(pointList, np)
+	}
+
+	if g.GeoJSONType == geojson.MultiPoint {
+		mp, err := g.ToMultiPoint()
+		if err != nil {
+			return nil, err
+		}
+		pointList = appendCoordsToMultiPoint(pointList, *mp, callbackFn)
+	}
+
+	if g.GeoJSONType == geojson.LineString {
+		ln, err := g.ToLineString()
+		if err != nil {
+			return nil, err
+		}
+		pointList = appendCoordsToLineString(pointList, *ln, callbackFn)
+	}
+
+	if g.GeoJSONType == geojson.MiltiLineString {
+		mln, err := g.ToMultiLineString()
+		if err != nil {
+			return nil, err
+		}
+		pointList = appendCoordToMultiLineString(pointList, *mln, callbackFn)
+	}
+
+	if g.GeoJSONType == geojson.Polygon {
+		poly, err := g.ToPolygon()
+		if err != nil {
+			return nil, err
+		}
+		return appendCoordsToPolygon(pointList, *poly, excludeWrapCoord, callbackFn), nil
+
+	}
+
+	if g.GeoJSONType == geojson.MultiPolygon {
+		multiPoly, err := g.ToMultiPolygon()
+		if err != nil {
+			return nil, err
+		}
+		return appendCoordToMultiPolygon(pointList, *multiPoly, excludeWrapCoord, callbackFn), nil
+	}
+
+	return pointList, nil
+}
+
+func coordEachFeatureCollection(c feature.Collection, excludeWrapCoord bool, callbackFn func(geometry.Point) geometry.Point) ([]geometry.Point, error) {
+	var finalCoordsList []geometry.Point
+	for _, f := range c.Features {
+		finalCoordsList, _ = appendCoordToFeature(finalCoordsList, f, excludeWrapCoord, callbackFn)
+	}
+	return finalCoordsList, nil
 }
