@@ -16,7 +16,7 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 - [x] bearing
 - [x] center
 - [ ] centerOfMass
-- [ ] centroid
+- [x] centroid
 - [x] destination
 - [x] distance
 - [x] envelope
@@ -122,7 +122,7 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 
 ## Meta
 - [x] coordAll
-- [ ] coordEach
+- [x] coordEach
 - [ ] coordReduce
 - [ ] featureEach
 - [ ] featureReduce
@@ -162,7 +162,7 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 
 ## Unit Conversion 
 - [x] bearingToAzimuth
-- [ ]  convertArea
+- [x]  convertArea
 - [x]  convertLength
 - [x] degreesToRadians
 - [x]  lengthToRadians
