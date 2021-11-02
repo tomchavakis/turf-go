@@ -1,7 +1,7 @@
 package constants
 
 const (
-	// UnitAcresis a unit of land measurement in the British Imperial and United States Customary systems, equal to 43,560 square feet, or 4,840 square yards. One acre is equivalent to 0.4047 hectare (4,047 square metres
+	// UnitAcres is a unit of land measurement in the British Imperial and United States Customary systems, equal to 43,560 square feet, or 4,840 square yards. One acre is equivalent to 0.4047 hectare (4,047 square metres
 	UnitAcres = "acres"
 	// UnitHectares is a unit of area in the metric system equal to 100 ares, or 10,000 square metres, and the equivalent of 2.471 acres in the British Imperial System and the United States Customary measure. The term is derived from the Latin area and from hect, an irregular contraction of the Greek word for hundred.
 	UnitHectares = "hectares"

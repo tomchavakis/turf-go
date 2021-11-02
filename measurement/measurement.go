@@ -525,12 +525,12 @@ func CentroidFeatureCollection(fc feature.Collection, properties map[string]inte
 	ySum := 0.0
 
 	for i := 0; i < coordsLength; i++ {
-		xSum += coords[i].Lng;
-		ySum += coords[i].Lat;
+		xSum += coords[i].Lng
+		ySum += coords[i].Lat
 	}
 
-	finalCenterLongtitude := xSum/float64(coordsLength)
-	finalCenterLatitude := ySum/float64(coordsLength)
+	finalCenterLongtitude := xSum / float64(coordsLength)
+	finalCenterLatitude := ySum / float64(coordsLength)
 
 	coordinates := []float64{finalCenterLongtitude, finalCenterLatitude}
 	g := geometry.Geometry{
