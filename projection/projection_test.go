@@ -11,6 +11,7 @@ import (
 
 const MercatorPoint = "../test-data/mercator.point.geojson"
 const MercatorPolygon = "../test-data/mercator.polygon.geojson"
+const MercatorMultiPolygon = "../test-data/mercator.multipolygon.geojson"
 
 func TestConvertToMercatorPoint(t *testing.T) {
 	p := geometry.Point{
@@ -100,23 +101,84 @@ func TestConvertToWGS84PolygonFeature(t *testing.T) {
 	}
 
 	coords := k.Geometry.Coordinates
-	coord, ok := coords.(geometry.LineString)
+	coord, ok := coords.([]geometry.LineString)
 	if !ok {
 		t.Errorf("invalid feature %v", err)
 	}
-	assert.Equal(t, coord.Coordinates[0].Lat, 58.00000000000044)
-	assert.Equal(t, coord.Coordinates[0].Lng, -116.00000000000237)
 
-	assert.Equal(t, coord.Coordinates[1].Lat, 58.00000000000044)
-	assert.Equal(t, coord.Coordinates[1].Lng, -90.0000000000034)
+	assert.Equal(t, coord[0].Coordinates[0].Lat, 58.00000000000044)
+	assert.Equal(t, coord[0].Coordinates[0].Lng, -116.00000000000237)
 
-	assert.Equal(t, coord.Coordinates[2].Lat, 66.00000000000074)
-	assert.Equal(t, coord.Coordinates[2].Lng, -90.0000000000034)
+	assert.Equal(t, coord[0].Coordinates[1].Lat, 58.00000000000044)
+	assert.Equal(t, coord[0].Coordinates[1].Lng, -90.0000000000034)
 
-	assert.Equal(t, coord.Coordinates[3].Lat, 66.00000000000074)
-	assert.Equal(t, coord.Coordinates[3].Lng, -116.00000000000237)
+	assert.Equal(t, coord[0].Coordinates[2].Lat, 66.00000000000074)
+	assert.Equal(t, coord[0].Coordinates[2].Lng, -90.0000000000034)
 
-	assert.Equal(t, coord.Coordinates[4].Lat, 58.00000000000044)
-	assert.Equal(t, coord.Coordinates[4].Lng, -116.00000000000237)
+	assert.Equal(t, coord[0].Coordinates[3].Lat, 66.00000000000074)
+	assert.Equal(t, coord[0].Coordinates[3].Lng, -116.00000000000237)
 
+	assert.Equal(t, coord[0].Coordinates[4].Lat, 58.00000000000044)
+	assert.Equal(t, coord[0].Coordinates[4].Lng, -116.00000000000237)
 }
+
+//TODO: Fix MultiPolygon Test
+func TestConvertToWGS84MultiPolygonFeature(t *testing.T) {
+	p, err := utils.LoadJSONFixture(MercatorMultiPolygon)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error %v", err)
+	}
+
+	f, err := feature.FromJSON(p)
+	if err != nil {
+		t.Errorf("FromJSON error %v", err)
+	}
+
+	r, err := ToWgs84(f)
+	assert.Nil(t, err)
+
+	k, ok := r.(*feature.Feature)
+	if !ok {
+		t.Errorf("invalid feature %v", err)
+	}
+
+	coords := k.Geometry.Coordinates
+	coord, ok := coords.([]geometry.Polygon)
+	if !ok {
+		t.Errorf("invalid feature %v", err)
+	}
+	assert.Equal(t, coord[0].Coordinates[0].Coordinates[0].Lat, -44.999999999999595)
+	assert.Equal(t, coord[0].Coordinates[0].Coordinates[0].Lng, -116.00000000000237)
+
+	assert.Equal(t, coord[0].Coordinates[0].Coordinates[1].Lat, -44.999999999999595)
+	assert.Equal(t, coord[0].Coordinates[0].Coordinates[1].Lng, -90.0000000000034)
+
+	assert.Equal(t, coord[0].Coordinates[0].Coordinates[2].Lat, -56.000000000001094)
+	assert.Equal(t, coord[0].Coordinates[0].Coordinates[2].Lng, -90.0000000000034)
+
+	assert.Equal(t, coord[0].Coordinates[0].Coordinates[3].Lat, -56.000000000001094)
+	assert.Equal(t, coord[0].Coordinates[0].Coordinates[3].Lng, -116.00000000000237)
+
+	assert.Equal(t, coord[0].Coordinates[0].Coordinates[4].Lat, -44.999999999999595)
+	assert.Equal(t, coord[0].Coordinates[0].Coordinates[4].Lng, -116.00000000000237)
+
+	assert.Equal(t, coord[1].Coordinates[0].Coordinates[0].Lat, 9.102096999999901)
+	assert.Equal(t, coord[1].Coordinates[0].Coordinates[0].Lng, -90.35156200000102)
+
+	assert.Equal(t, coord[1].Coordinates[0].Coordinates[1].Lat, -3.5134210000008026)
+	assert.Equal(t, coord[1].Coordinates[0].Coordinates[1].Lng, -77.69531200000432)
+
+	assert.Equal(t, coord[1].Coordinates[0].Coordinates[2].Lat, 12.211180000002315)
+	assert.Equal(t, coord[1].Coordinates[0].Coordinates[2].Lng, -65.03906199999867)
+
+	assert.Equal(t, coord[1].Coordinates[0].Coordinates[3].Lat, 21.61657899999976)
+	assert.Equal(t, coord[1].Coordinates[0].Coordinates[3].Lng, -65.74218699999848)
+
+	assert.Equal(t, coord[1].Coordinates[0].Coordinates[4].Lat, 24.52713500000161)
+	assert.Equal(t, coord[1].Coordinates[0].Coordinates[4].Lng, -84.02343700000269)
+}
+
+//TODO: Add Fiji Test
+
+//TODO: Add MultiLine Test
+//TODO: Add Feature Collection Test

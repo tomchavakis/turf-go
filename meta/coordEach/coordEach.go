@@ -8,7 +8,7 @@ import (
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
-// CoordEach iterate over coordinates in any Geojson object
+// CoordEach iterate over coordinates in any Geojson object and apply the callbackFn
 // geojson can be a FeatureCollection | Feature | Geometry
 // callbackFn is a method that takes a point and returns a point
 // excludeWrapCoord whether or not to include the final coordinate of LinearRings that wraps the ring in its iteration.
@@ -119,6 +119,7 @@ func appendCoordsToPolygon(coords []geometry.Point, p *geometry.Polygon, exclude
 	for i := 0; i < len(p.Coordinates); i++ {
 		for j := 0; j < len(p.Coordinates[i].Coordinates)-wrapShrink; j++ {
 			np := callbackFn(p.Coordinates[i].Coordinates[j])
+			p.Coordinates[i].Coordinates[j] = np
 			coords = append(coords, np)
 		}
 	}
@@ -140,6 +141,7 @@ func appendCoordToMultiPolygon(coords []geometry.Point, mp *geometry.MultiPolygo
 		for j := 0; j < len(mp.Coordinates[i].Coordinates); j++ {
 			for k := 0; k < len(mp.Coordinates[i].Coordinates[j].Coordinates)-wrapShrink; k++ {
 				np := callbackFn(mp.Coordinates[i].Coordinates[j].Coordinates[k])
+				mp.Coordinates[i].Coordinates[j].Coordinates[k] = np
 				coords = append(coords, np)
 			}
 		}
@@ -202,11 +204,7 @@ func coordsEachFromSingleGeometry(pointList []geometry.Point, g *geometry.Geomet
 			return nil, err
 		}
 		pointList = appendCoordsToPolygon(pointList, poly, excludeWrapCoord, callbackFn)
-		lns, err := geometry.NewLineString(pointList)
-		if err != nil {
-			return nil, err
-		}
-		g.Coordinates = *lns
+		g.Coordinates = poly.Coordinates
 		return pointList, nil
 	}
 
@@ -215,7 +213,9 @@ func coordsEachFromSingleGeometry(pointList []geometry.Point, g *geometry.Geomet
 		if err != nil {
 			return nil, err
 		}
-		return appendCoordToMultiPolygon(pointList, multiPoly, excludeWrapCoord, callbackFn), nil
+		pointList = appendCoordToMultiPolygon(pointList, multiPoly, excludeWrapCoord, callbackFn)
+		g.Coordinates = multiPoly.Coordinates
+		return pointList, nil
 	}
 
 	return pointList, nil
