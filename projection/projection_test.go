@@ -10,8 +10,13 @@ import (
 )
 
 const MercatorPoint = "../test-data/mercator.point.geojson"
+const MercatorMultiPoint = "../test-data/mercator.multipoint.geojson"
+
 const MercatorPolygon = "../test-data/mercator.polygon.geojson"
 const MercatorMultiPolygon = "../test-data/mercator.multipolygon.geojson"
+
+const MercatorMultiLineString = "../test-data/mercator.multilinestring.geojson"
+const MercatorLineString = "../test-data/mercator.linestring.geojson"
 
 func TestConvertToMercatorPoint(t *testing.T) {
 	p := geometry.Point{
@@ -81,6 +86,41 @@ func TestConvertToWGS84PointFeature(t *testing.T) {
 	assert.Equal(t, coord.Lng, -71.0)
 }
 
+func TestConvertToWGS84MultiPointFeature(t *testing.T) {
+	p, err := utils.LoadJSONFixture(MercatorMultiPoint)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error %v", err)
+	}
+
+	f, err := feature.FromJSON(p)
+	if err != nil {
+		t.Errorf("FromJSON error %v", err)
+	}
+
+	r, err := ToWgs84(f)
+	assert.Nil(t, err)
+
+	k, ok := r.(*feature.Feature)
+	if !ok {
+		t.Errorf("invalid feature %v", err)
+	}
+
+	coords := k.Geometry.Coordinates
+	coord, ok := coords.([]geometry.Point)
+	if !ok {
+		t.Errorf("invalid feature %v", err)
+	}
+
+	assert.Equal(t, coord[0].Lat, 33.72434000000235)
+	assert.Equal(t, coord[0].Lng, -20.39062500000365)
+
+	assert.Equal(t, coord[1].Lat, 47.51720099999992)
+	assert.Equal(t, coord[1].Lng, -3.5156249999990803)
+
+	assert.Equal(t, coord[2].Lat, 16.97274100000141)
+	assert.Equal(t, coord[2].Lng, 14.062499999996321)
+}
+
 func TestConvertToWGS84PolygonFeature(t *testing.T) {
 	p, err := utils.LoadJSONFixture(MercatorPolygon)
 	if err != nil {
@@ -122,7 +162,6 @@ func TestConvertToWGS84PolygonFeature(t *testing.T) {
 	assert.Equal(t, coord[0].Coordinates[4].Lng, -116.00000000000237)
 }
 
-//TODO: Fix MultiPolygon Test
 func TestConvertToWGS84MultiPolygonFeature(t *testing.T) {
 	p, err := utils.LoadJSONFixture(MercatorMultiPolygon)
 	if err != nil {
@@ -178,7 +217,96 @@ func TestConvertToWGS84MultiPolygonFeature(t *testing.T) {
 	assert.Equal(t, coord[1].Coordinates[0].Coordinates[4].Lng, -84.02343700000269)
 }
 
+func TestConvertToWGS84LineStringFeature(t *testing.T) {
+	p, err := utils.LoadJSONFixture(MercatorLineString)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error %v", err)
+	}
+
+	f, err := feature.FromJSON(p)
+	if err != nil {
+		t.Errorf("FromJSON error %v", err)
+	}
+
+	r, err := ToWgs84(f)
+	assert.Nil(t, err)
+
+	k, ok := r.(*feature.Feature)
+	if !ok {
+		t.Errorf("invalid feature %v", err)
+	}
+
+	coords := k.Geometry.Coordinates
+	coord, ok := coords.([]geometry.Point)
+	if !ok {
+		t.Errorf("invalid feature %v", err)
+	}
+
+	assert.Equal(t, coord[0].Lat, 33.72434000000235)
+	assert.Equal(t, coord[0].Lng, -20.39062500000365)
+
+	assert.Equal(t, coord[1].Lat, 47.51720099999992)
+	assert.Equal(t, coord[1].Lng, -3.5156249999990803)
+
+	assert.Equal(t, coord[2].Lat, 16.97274100000141)
+	assert.Equal(t, coord[2].Lng, 14.062499999996321)
+}
+
+func TestConvertToWGS84MultilineFeature(t *testing.T) {
+	p, err := utils.LoadJSONFixture(MercatorMultiLineString)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error %v", err)
+	}
+
+	f, err := feature.FromJSON(p)
+	if err != nil {
+		t.Errorf("FromJSON error %v", err)
+	}
+
+	r, err := ToWgs84(f)
+	assert.Nil(t, err)
+
+	k, ok := r.(*feature.Feature)
+	if !ok {
+		t.Errorf("invalid feature %v", err)
+	}
+
+	coords := k.Geometry.Coordinates
+	coord, ok := coords.([]geometry.LineString)
+	if !ok {
+		t.Errorf("invalid feature %v", err)
+	}
+	print(coord)
+	assert.Equal(t, coord[0].Coordinates[0].Lat, -1.4061090000014986)
+	assert.Equal(t, coord[0].Coordinates[0].Lng, -127.96875000000244)
+
+	assert.Equal(t, coord[0].Coordinates[1].Lat, 33.43144100000098)
+	assert.Equal(t, coord[0].Coordinates[1].Lng, -91.05468700000083)
+
+	assert.Equal(t, coord[0].Coordinates[2].Lat, 57.51582299999881)
+	assert.Equal(t, coord[0].Coordinates[2].Lng, -71.71874999999919)
+
+	assert.Equal(t, coord[0].Coordinates[3].Lat, 65.658275)
+	assert.Equal(t, coord[0].Coordinates[3].Lng, -29.531250000001258)
+
+	assert.Equal(t, coord[1].Coordinates[0].Lat, 29.535230000001896)
+	assert.Equal(t, coord[1].Coordinates[0].Lng, -72.77343699999663)
+
+	assert.Equal(t, coord[1].Coordinates[1].Lat, 13.23994499999653)
+	assert.Equal(t, coord[1].Coordinates[1].Lng, -82.61718700000304)
+
+	assert.Equal(t, coord[1].Coordinates[2].Lat, 9.79567800000412)
+	assert.Equal(t, coord[1].Coordinates[2].Lng, -49.57031200000271)
+
+	assert.Equal(t, coord[1].Coordinates[3].Lat, -11.178402000004093)
+	assert.Equal(t, coord[1].Coordinates[3].Lng, -84.3749999999959)
+
+	assert.Equal(t, coord[1].Coordinates[4].Lat, -55.57834500000183)
+	assert.Equal(t, coord[1].Coordinates[4].Lng, -29.531250000001258)
+}
+
+//TODO: Passed 180th meridian
+
 //TODO: Add Fiji Test
 
-//TODO: Add MultiLine Test
 //TODO: Add Feature Collection Test
