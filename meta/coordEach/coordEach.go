@@ -45,7 +45,7 @@ func CoordEach(geojson interface{}, callbackFn func(geometry.Point) geometry.Poi
 		return coordEachFeature(gtp, *excludeWrapCoord, callbackFn)
 	case *feature.Collection:
 		if excludeWrapCoord == nil {
-			return nil, errors.New("exclude wrap coord can't be null")
+			return coordEachFeatureCollection(gtp, false, callbackFn)
 		}
 		return coordEachFeatureCollection(gtp, *excludeWrapCoord, callbackFn)
 	case *geometry.Collection:
@@ -213,7 +213,6 @@ func coordsEachFromSingleGeometry(pointList []geometry.Point, g *geometry.Geomet
 		}
 		pointList = appendCoordsToPolygon(pointList, poly, excludeWrapCoord, callbackFn)
 		g.Coordinates = poly.Coordinates
-		return pointList, nil
 	}
 
 	if g.GeoJSONType == geojson.MultiPolygon {
@@ -223,7 +222,6 @@ func coordsEachFromSingleGeometry(pointList []geometry.Point, g *geometry.Geomet
 		}
 		pointList = appendCoordToMultiPolygon(pointList, multiPoly, excludeWrapCoord, callbackFn)
 		g.Coordinates = multiPoly.Coordinates
-		return pointList, nil
 	}
 
 	return pointList, nil
@@ -231,8 +229,12 @@ func coordsEachFromSingleGeometry(pointList []geometry.Point, g *geometry.Geomet
 
 func coordEachFeatureCollection(c *feature.Collection, excludeWrapCoord bool, callbackFn func(geometry.Point) geometry.Point) ([]geometry.Point, error) {
 	var finalCoordsList []geometry.Point
-	for _, f := range c.Features {
-		finalCoordsList, _ = appendCoordToFeature(finalCoordsList, &f, excludeWrapCoord, callbackFn)
+
+	for i := 0; i < len(c.Features); i++ {
+		var tempCoordsList []geometry.Point
+		tempCoordsList, _ = appendCoordToFeature(tempCoordsList, &c.Features[i], excludeWrapCoord, callbackFn)
+		finalCoordsList = append(finalCoordsList, tempCoordsList...)
 	}
+
 	return finalCoordsList, nil
 }
