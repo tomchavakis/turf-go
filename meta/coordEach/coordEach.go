@@ -16,7 +16,6 @@ func CoordEach(geojson interface{}, callbackFn func(geometry.Point) geometry.Poi
 	if geojson == nil {
 		return nil, errors.New("geojson is empty")
 	}
-
 	switch gtp := geojson.(type) {
 	case nil:
 		break
@@ -28,14 +27,14 @@ func CoordEach(geojson interface{}, callbackFn func(geometry.Point) geometry.Poi
 		return coordEachLineString(gtp, callbackFn), nil
 	case *geometry.Polygon:
 		if excludeWrapCoord == nil {
-			return nil, errors.New("exclude wrap coord can't be null")
+			return coordEachPolygon(gtp, false, callbackFn), nil
 		}
 		return coordEachPolygon(gtp, *excludeWrapCoord, callbackFn), nil
 	case *geometry.MultiLineString:
 		return coordEachMultiLineString(gtp, callbackFn), nil
 	case *geometry.MultiPolygon:
 		if excludeWrapCoord == nil {
-			return nil, errors.New("exclude wrap coord can't be null")
+			return coordEachMultiPolygon(gtp, false, callbackFn), nil
 		}
 		return coordEachMultiPolygon(gtp, *excludeWrapCoord, callbackFn), nil
 	case *feature.Feature:
@@ -63,8 +62,10 @@ func CoordEach(geojson interface{}, callbackFn func(geometry.Point) geometry.Poi
 func callbackEachPoint(p *geometry.Point, callbackFn func(geometry.Point) geometry.Point) []geometry.Point {
 	var coords []geometry.Point
 	np := callbackFn(*p)
+	// Conversion assignment
+	p.Lat = np.Lat
+	p.Lng = np.Lng
 	coords = append(coords, np)
-
 	return coords
 }
 
