@@ -77,6 +77,7 @@ func appendCoordsToMultiPoint(coords []geometry.Point, m *geometry.MultiPoint, c
 		np := callbackFn(v)
 		coords = append(coords, np)
 	}
+	m.Coordinates = coords
 	return coords
 }
 
@@ -89,6 +90,8 @@ func appendCoordsToLineString(coords []geometry.Point, l *geometry.LineString, c
 		np := callbackFn(v)
 		coords = append(coords, np)
 	}
+
+	l.Coordinates = coords
 	return coords
 }
 
@@ -100,6 +103,7 @@ func appendCoordToMultiLineString(coords []geometry.Point, m *geometry.MultiLine
 	for i := 0; i < len(m.Coordinates); i++ {
 		for j := 0; j < len(m.Coordinates[i].Coordinates); j++ {
 			np := callbackFn(m.Coordinates[i].Coordinates[j])
+			m.Coordinates[i].Coordinates[j] = np
 			coords = append(coords, np)
 		}
 
@@ -180,6 +184,8 @@ func coordsEachFromSingleGeometry(pointList []geometry.Point, g *geometry.Geomet
 			return nil, err
 		}
 		pointList = appendCoordsToMultiPoint(pointList, mp, callbackFn)
+
+		g.Coordinates = mp.Coordinates
 	}
 
 	if g.GeoJSONType == geojson.LineString {
@@ -188,6 +194,7 @@ func coordsEachFromSingleGeometry(pointList []geometry.Point, g *geometry.Geomet
 			return nil, err
 		}
 		pointList = appendCoordsToLineString(pointList, ln, callbackFn)
+		g.Coordinates = ln.Coordinates
 	}
 
 	if g.GeoJSONType == geojson.MiltiLineString {
@@ -196,6 +203,7 @@ func coordsEachFromSingleGeometry(pointList []geometry.Point, g *geometry.Geomet
 			return nil, err
 		}
 		pointList = appendCoordToMultiLineString(pointList, mln, callbackFn)
+		g.Coordinates = mln.Coordinates
 	}
 
 	if g.GeoJSONType == geojson.Polygon {
