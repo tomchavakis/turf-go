@@ -19,6 +19,7 @@ const MercatorMultiLineString = "../test-data/mercator.multilinestring.geojson"
 const MercatorLineString = "../test-data/mercator.linestring.geojson"
 
 const MercatorFeatureCollection = "../test-data/mercator.featurecollection.geojson"
+const MercatorPassedMeridian = "../test-data/mercator.passed180thmeridian.geojson"
 
 func TestConvertToMercatorPoint(t *testing.T) {
 	p := geometry.Point{
@@ -370,6 +371,76 @@ func TestConvertToWGS84FeatureCollection(t *testing.T) {
 	assert.Equal(t, coord3.Lng, -76.28906199999572)
 }
 
-//TODO: Passed 180th meridian
+func TestConvertToWGS84PassedMeridian(t *testing.T) {
+	p, err := utils.LoadJSONFixture(MercatorPassedMeridian)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error %v", err)
+	}
+
+	f, err := feature.FromJSON(p)
+	if err != nil {
+		t.Errorf("FromJSON error %v", err)
+	}
+
+	r, err := ToWgs84(f)
+	assert.Nil(t, err)
+
+	k, ok := r.(*feature.Feature)
+	if !ok {
+		t.Errorf("invalid feature %v", err)
+	}
+
+	coords := k.Geometry.Coordinates
+
+	coord, ok := coords.([]geometry.LineString)
+	if !ok {
+		t.Errorf("invalid feature %v", err)
+	}
+
+	assert.Equal(t, coord[0].Coordinates[0].Lat, -23.56398700000191)
+	assert.Equal(t, coord[0].Coordinates[0].Lng, 113.20312499999733)
+
+	assert.Equal(t, coord[0].Coordinates[1].Lat, -34.8138030000016)
+	assert.Equal(t, coord[0].Coordinates[1].Lng, 116.7187499999964)
+
+	assert.Equal(t, coord[0].Coordinates[2].Lat, -31.05293399999659)
+	assert.Equal(t, coord[0].Coordinates[2].Lng, 131.92382799999635)
+
+	assert.Equal(t, coord[0].Coordinates[3].Lat, -38.41055799999684)
+	assert.Equal(t, coord[0].Coordinates[3].Lng, 141.41601599999615)
+
+	assert.Equal(t, coord[0].Coordinates[4].Lat, -38.34165599999897)
+	assert.Equal(t, coord[0].Coordinates[4].Lng, 148.5351559999959)
+
+	assert.Equal(t, coord[0].Coordinates[5].Lat, -27.371766999999128)
+	assert.Equal(t, coord[0].Coordinates[5].Lng, 153.98437499999565)
+
+	assert.Equal(t, coord[0].Coordinates[6].Lat, -10.746968999999027)
+	assert.Equal(t, coord[0].Coordinates[6].Lng, 142.03124999999878)
+
+	assert.Equal(t, coord[0].Coordinates[7].Lat, -17.560247000003802)
+	assert.Equal(t, coord[0].Coordinates[7].Lng, 140.27343800000153)
+
+	assert.Equal(t, coord[0].Coordinates[8].Lat, -15.029686000000622)
+	assert.Equal(t, coord[0].Coordinates[8].Lng, 135.61523400000323)
+
+	assert.Equal(t, coord[0].Coordinates[9].Lat, -11.953348999996189)
+	assert.Equal(t, coord[0].Coordinates[9].Lng, 136.66992199999626)
+
+	assert.Equal(t, coord[0].Coordinates[10].Lat, -11.350797000000282)
+	assert.Equal(t, coord[0].Coordinates[10].Lng, 131.30859400000273)
+
+	assert.Equal(t, coord[0].Coordinates[11].Lat, -16.9727410000014)
+	assert.Equal(t, coord[0].Coordinates[11].Lng, 122.25585899999774)
+
+	assert.Equal(t, coord[0].Coordinates[12].Lat, -19.394068000000363)
+	assert.Equal(t, coord[0].Coordinates[12].Lng, 121.46484399999632)
+
+	assert.Equal(t, coord[0].Coordinates[13].Lat, -23.56398700000191)
+	assert.Equal(t, coord[0].Coordinates[13].Lng, 113.20312499999733)
+
+}
 
 //TODO: Add Fiji Test
+
+//TODO: Test ToMercator functions
