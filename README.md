@@ -169,8 +169,8 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 - [x]  lengthToDegrees
 - [x]  radiansToLength
 - [x] radiansToDegrees
-- [ ]  toMercator
-- [ ]  toWgs84
+- [x]  toMercator
+- [x]  toWgs84
 
 
 

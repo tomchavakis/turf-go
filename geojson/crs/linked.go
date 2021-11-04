@@ -3,7 +3,7 @@ package crs
 import "errors"
 
 // Linked defines a Linked CRS Type
-// http://geojson.org/geojson-spec.html#named-crs
+// https://geojson.org/geojson-spec.html#coordinate-reference-system-objects
 type Linked struct {
 }
 

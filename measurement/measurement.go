@@ -2,13 +2,14 @@ package measurement
 
 import (
 	"errors"
+	"math"
+
 	"github.com/tomchavakis/turf-go/constants"
 	"github.com/tomchavakis/turf-go/conversions"
 	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 	"github.com/tomchavakis/turf-go/meta/coordAll"
-	"math"
 )
 
 // Distance calculates the distance between two points in kilometers. This uses the Haversine formula
@@ -524,12 +525,12 @@ func CentroidFeatureCollection(fc feature.Collection, properties map[string]inte
 	ySum := 0.0
 
 	for i := 0; i < coordsLength; i++ {
-		xSum += coords[i].Lng;
-		ySum += coords[i].Lat;
+		xSum += coords[i].Lng
+		ySum += coords[i].Lat
 	}
 
-	finalCenterLongtitude := xSum/float64(coordsLength)
-	finalCenterLatitude := ySum/float64(coordsLength)
+	finalCenterLongtitude := xSum / float64(coordsLength)
+	finalCenterLatitude := ySum / float64(coordsLength)
 
 	coordinates := []float64{finalCenterLongtitude, finalCenterLatitude}
 	g := geometry.Geometry{

@@ -9,6 +9,10 @@ lint:
 test:
 	GO111MODULE=on go test -mod=vendor `go list -mod vendor ./...`  -race
 
+cover:
+	go test -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out
+
 fmt:
 	go fmt ./...
 

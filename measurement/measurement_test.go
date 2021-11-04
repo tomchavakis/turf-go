@@ -1061,7 +1061,6 @@ func TestEnvelope(t *testing.T) {
 	}
 }
 
-
 func TestCentroidFeature(t *testing.T) {
 	gjson, err := utils.LoadJSONFixture(AreaPolygon)
 	if err != nil {
@@ -1119,7 +1118,6 @@ func TestImbalancedPolygonFeature(t *testing.T) {
 		assert.Equal(t, p.Lat, 45.78143055383553)
 	}
 }
-
 
 func TestCentroidFeatureWithProperties(t *testing.T) {
 	properties := make(map[string]interface{})
