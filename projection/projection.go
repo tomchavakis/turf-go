@@ -10,7 +10,17 @@ import (
 
 const a = 6378137.0
 
-// ConvertToMercator converts a WGS84 GeoJSON object to Mercator (EPSG:3857 sometimes knows as EPSG:900913) projection
+// ToMercator converts a WGS84 GeoJSON object into Mercator (EPSG:900913) projection
+func ToMercator(geojson interface{}) (interface{}, error) {
+	return Convert(geojson, "mercator")
+}
+
+// ToWgs84 Converts a Mercator (EPSG:900913) GeoJSON object into WGS84 projection
+func ToWgs84(geojson interface{}) (interface{}, error) {
+	return Convert(geojson, "wgs84")
+}
+
+// ConvertToMercator converts a WGS84 lonlat to Mercator (EPSG:3857 sometimes knows as EPSG:900913) projection
 // https://spatialreference.org/ref/sr-org/epsg3857-wgs84-web-mercator-auxiliary-sphere/
 func ConvertToMercator(lonlat []float64) []float64 {
 	rad := math.Pi / 180.0
@@ -45,23 +55,13 @@ func ConvertToMercator(lonlat []float64) []float64 {
 }
 
 // ConvertToWgs84 convert 900913 x/y values to lon/lat
-func ConvertToWgs84(p []float64) []float64 {
+func ConvertToWgs84(xy []float64) []float64 {
 	dgs := 180.0 / math.Pi
 
 	return []float64{
-		p[0] * dgs / a,
-		(math.Pi*0.5 - 2.0*math.Atan(math.Exp(-p[1]/a))) * dgs,
+		xy[0] * dgs / a,
+		(math.Pi*0.5 - 2.0*math.Atan(math.Exp(-xy[1]/a))) * dgs,
 	}
-}
-
-// ToMercator converts a WGS84 GeoJSON object into Mercator (EPSG:900913) projection
-func ToMercator(geojson interface{}) (interface{}, error) {
-	return Convert(geojson, "mercator")
-}
-
-// ToWgs84 Converts a Mercator (EPSG:900913) GeoJSON object into WGS84 projection
-func ToWgs84(geojson interface{}) (interface{}, error) {
-	return Convert(geojson, "wgs84")
 }
 
 // Convert converts a GeoJSON coordinates to the defined projection
