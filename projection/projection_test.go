@@ -11,22 +11,19 @@ import (
 
 const MercatorPoint = "../test-data/mercator.point.geojson"
 const MercatorMultiPoint = "../test-data/mercator.multipoint.geojson"
-
 const MercatorPolygon = "../test-data/mercator.polygon.geojson"
 const MercatorMultiPolygon = "../test-data/mercator.multipolygon.geojson"
-
 const MercatorMultiLineString = "../test-data/mercator.multilinestring.geojson"
 const MercatorLineString = "../test-data/mercator.linestring.geojson"
-
-const MercatorFeatureCollection = "../test-data/mercator.featurecollection.geojson"
 const MercatorPassedMeridian = "../test-data/mercator.passed180thmeridian.geojson"
-
 const MercatorGeometryPoint = "../test-data/mercator.geometry.point.geojson"
 const MercatorGeometryMultiPoint = "../test-data/mercator.geometry.multipoint.geojson"
 const MercatorGeometryLineString = "../test-data/mercator.geometry.linestring.geojson"
 const MercatorGeometryPolygon = "../test-data/mercator.geometry.polygon.geojson"
 const MercatorGeometryMultiPolygon = "../test-data/mercator.geometry.multipolygon.geojson"
 const MercatorGeometryMultiLineString = "../test-data/mercator.geometry.multilinestring.geojson"
+const MercatorFeatureCollection = "../test-data/mercator.featurecollection.geojson"
+const MercatorGeometryCollection = "../test-data/mercator.geometrycollection.geojson"
 
 func TestConvertToMercatorPoint(t *testing.T) {
 	p := geometry.Point{
@@ -692,6 +689,49 @@ func TestConvertToWGS84GeometryMultiLineString(t *testing.T) {
 
 }
 
-//TODO: Test GeometryCollection
+func TestConvertToWGS84GeometryCollection(t *testing.T) {
+	p, err := utils.LoadJSONFixture(MercatorGeometryCollection)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error %v", err)
+	}
+
+	collection, err := geometry.CollectionFromJSON(p)
+	if err != nil {
+		t.Errorf("FromJSON error %v", err)
+	}
+
+	r, err := ToWgs84(collection)
+	assert.Nil(t, err)
+
+	k, ok := r.(*geometry.Collection)
+	if !ok {
+		t.Errorf("invalid geometry %v", err)
+	}
+
+	coords := k.Geometries
+
+	coord, ok := coords[0].Coordinates.(geometry.Point)
+	if !ok {
+		t.Errorf("invalid feature %v", err)
+	}
+
+	assert.Equal(t, coord.Lat, 40.99999999999998)
+	assert.Equal(t, coord.Lng, -71.0)
+
+	coord2, ok2 := coords[1].Coordinates.([]geometry.Point)
+
+	if !ok2 {
+		t.Errorf("invalid feature %v", err)
+	}
+
+	assert.Equal(t, coord2[0].Lat, 33.72434000000235)
+	assert.Equal(t, coord2[0].Lng, -20.39062500000365)
+
+	assert.Equal(t, coord2[1].Lat, 47.51720099999992)
+	assert.Equal(t, coord2[1].Lng, -3.5156249999990803)
+
+	assert.Equal(t, coord2[2].Lat, 16.97274100000141)
+	assert.Equal(t, coord2[2].Lng, 14.062499999996321)
+}
 
 //TODO: Test ToMercator functions

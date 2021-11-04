@@ -48,12 +48,10 @@ func CoordEach(geojson interface{}, callbackFn func(geometry.Point) geometry.Poi
 		}
 		return coordEachFeatureCollection(gtp, *excludeWrapCoord, callbackFn)
 	case *geometry.Collection:
-		pts := []geometry.Point{}
-		for _, gmt := range gtp.Geometries {
-			snl, _ := coordsEachFromSingleGeometry(pts, &gmt, *excludeWrapCoord, callbackFn)
-			pts = append(pts, snl...)
+		if excludeWrapCoord == nil {
+			return coordEachGeometryCollection(gtp, false, callbackFn)
 		}
-		return pts, nil
+		return coordEachGeometryCollection(gtp, *excludeWrapCoord, callbackFn)
 	}
 
 	return nil, nil
@@ -234,6 +232,18 @@ func coordEachFeatureCollection(c *feature.Collection, excludeWrapCoord bool, ca
 	for i := 0; i < len(c.Features); i++ {
 		var tempCoordsList []geometry.Point
 		tempCoordsList, _ = appendCoordToFeature(tempCoordsList, &c.Features[i], excludeWrapCoord, callbackFn)
+		finalCoordsList = append(finalCoordsList, tempCoordsList...)
+	}
+
+	return finalCoordsList, nil
+}
+
+func coordEachGeometryCollection(g *geometry.Collection, excludeWrapCoord bool, callbackFn func(geometry.Point) geometry.Point) ([]geometry.Point, error) {
+	var finalCoordsList []geometry.Point
+
+	for i := 0; i < len(g.Geometries); i++ {
+		var tempCoordsList []geometry.Point
+		tempCoordsList, _ = coordsEachFromSingleGeometry(tempCoordsList, &g.Geometries[i], excludeWrapCoord, callbackFn)
 		finalCoordsList = append(finalCoordsList, tempCoordsList...)
 	}
 
