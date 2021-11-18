@@ -1,6 +1,7 @@
 package turf
 
 import (
+	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
@@ -45,13 +46,13 @@ func PointInMultiPolygon(p geometry.Point, mp geometry.MultiPolygon) bool {
 	return insidePoly
 }
 
-// optionally
-// func inBBOX(pt geometry.Point, bbox geometry.BBOX) bool {
-// 	return bbox.West <= pt.Lng &&
-// 		bbox.South <= pt.Lat &&
-// 		bbox.East >= pt.Lng &&
-// 		bbox.North >= pt.Lat
-// }
+// InBBOX returns true if the point is within the Bounding Box
+func InBBOX(pt geometry.Point, bbox geojson.BBOX) bool {
+	return bbox.West <= pt.Lng &&
+		bbox.South <= pt.Lat &&
+		bbox.East >= pt.Lng &&
+		bbox.North >= pt.Lat
+}
 
 func inRing(pt geometry.Point, ring []geometry.Point) bool {
 

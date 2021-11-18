@@ -1,16 +1,52 @@
 package assert
 
 import (
+	"bytes"
 	"reflect"
 	"testing"
 )
 
 // Equal checks if values are equal
 func Equal(t *testing.T, a interface{}, b interface{}) {
-	if a == b {
+
+	if a == nil || b == nil {
+		if a == b {
+			return
+		}
+
+	}
+
+	exp, ok := a.([]byte)
+	if !ok {
+		if reflect.DeepEqual(a, b) {
+			return
+		}
+	}
+
+	act, ok := b.([]byte)
+	if !ok {
+		t.Errorf("Received %v (type %v), expected %v (type %v)", a, reflect.TypeOf(a), b, reflect.TypeOf(b))
+	}
+
+	if exp == nil || act == nil {
+		if exp == nil && act == nil {
+			return
+		}
+	}
+
+	if bytes.Equal(exp, act) {
 		return
 	}
+
 	t.Errorf("Received %v (type %v), expected %v (type %v)", a, reflect.TypeOf(a), b, reflect.TypeOf(b))
+}
+
+// True asserts that the specified value is true
+func True(t *testing.T, value bool, msgAndArgs ...interface{}) bool {
+	if !value {
+		t.Errorf("Received %v, expected %v", value, true)
+	}
+	return value
 }
 
 func containsKind(kinds []reflect.Kind, kind reflect.Kind) bool {

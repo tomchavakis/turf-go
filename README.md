@@ -94,8 +94,8 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 - [x] polygon        
 
 ## Random
-- [ ] randomPosition
-- [ ] randomPoint
+- [x] randomPosition
+- [x] randomPoint
 - [ ] randomLineString
 - [ ] randomPolygon
 
