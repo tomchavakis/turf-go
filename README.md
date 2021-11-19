@@ -96,10 +96,10 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 - [x] polygon        
 
 ## Random
-- [ ] randomPosition
-- [ ] randomPoint
-- [ ] randomLineString
-- [ ] randomPolygon
+- [x] randomPosition
+- [x] randomPoint
+- [x] randomLineString
+- [x] randomPolygon
 
 ## Data
 - [ ] sample
@@ -164,15 +164,15 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 
 ## Unit Conversion 
 - [x] bearingToAzimuth
-- [x]  convertArea
-- [x]  convertLength
+- [x] convertArea
+- [x] convertLength
 - [x] degreesToRadians
-- [x]  lengthToRadians
-- [x]  lengthToDegrees
-- [x]  radiansToLength
+- [x] lengthToRadians
+- [x] lengthToDegrees
+- [x] radiansToLength
 - [x] radiansToDegrees
-- [x]  toMercator
-- [x]  toWgs84
+- [x] toMercator
+- [x] toWgs84
 
 
 
