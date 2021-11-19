@@ -7,6 +7,7 @@ import (
 	"github.com/tomchavakis/turf-go/assert"
 	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/feature"
+	"github.com/tomchavakis/turf-go/internal/common"
 )
 
 func TestRandomPosition(t *testing.T) {
@@ -67,10 +68,9 @@ func TestRandomLineString(t *testing.T) {
 
 func TestRandomLineString_Vertex_1(t *testing.T) {
 	bbox := geojson.NewBBox(-10.0, -10.0, 10.0, 10.0)
-	dv := 1
 	options := LineStringOptions{
 		BBox:        *bbox,
-		NumVertices: &dv,
+		NumVertices: common.IntPtr(1),
 		MaxLength:   nil,
 		MaxRotation: nil,
 	}
@@ -85,10 +85,9 @@ func TestRandomLineString_Vertex_1(t *testing.T) {
 
 func TestRandomLineString_Count_0(t *testing.T) {
 	bbox := geojson.NewBBox(-10.0, -10.0, 10.0, 10.0)
-	dv := 1
 	options := LineStringOptions{
 		BBox:        *bbox,
-		NumVertices: &dv,
+		NumVertices: common.IntPtr(1),
 		MaxLength:   nil,
 		MaxRotation: nil,
 	}
@@ -99,6 +98,54 @@ func TestRandomLineString_Count_0(t *testing.T) {
 	assert.Equal(t, len(fc.Features), 1)
 	assert.Equal(t, string(fc.Features[0].Geometry.GeoJSONType), "LineString")
 	checkFeaturesInBBox(t, bbox, fc.Features)
+}
+
+func TestRandomPolygon(t *testing.T) {
+	bbox := geojson.NewBBox(-20.0, -20.0, 20.0, 20.0)
+	options := PolygonOptions{
+		BBox:            *bbox,
+		NumVertices:     nil,
+		MaxRadialLength: nil,
+	}
+	fc, err := Polygon(1, options)
+	assert.Nil(t, err)
+	assert.Equal(t, string(fc.Type), "FeatureCollection")
+	assert.NotNil(t, fc.Features)
+	assert.Equal(t, len(fc.Features), 1)
+	assert.Equal(t, string(fc.Features[0].Geometry.GeoJSONType), "Polygon")
+}
+
+func TestRandomPolygon_Features_ShouldBe_10(t *testing.T) {
+	bbox := geojson.NewBBox(-20.0, -20.0, 20.0, 20.0)
+	options := PolygonOptions{
+		BBox:            *bbox,
+		NumVertices:     nil,
+		MaxRadialLength: nil,
+	}
+	fc, err := Polygon(10, options)
+	assert.Nil(t, err)
+	assert.Equal(t, string(fc.Type), "FeatureCollection")
+	assert.NotNil(t, fc.Features)
+	assert.Equal(t, len(fc.Features), 10)
+	assert.Equal(t, string(fc.Features[0].Geometry.GeoJSONType), "Polygon")
+}
+
+func TestRandomPolygon_Vertices_ShouldBe_NumVerticesPlusOne(t *testing.T) {
+	bbox := geojson.NewBBox(-20.0, -20.0, 20.0, 20.0)
+	options := PolygonOptions{
+		BBox:            *bbox,
+		NumVertices:     common.IntPtr(20),
+		MaxRadialLength: nil,
+	}
+	fc, err := Polygon(10, options)
+	assert.Nil(t, err)
+	assert.Equal(t, string(fc.Type), "FeatureCollection")
+	assert.NotNil(t, fc.Features)
+	assert.Equal(t, len(fc.Features), 10)
+	assert.Equal(t, string(fc.Features[0].Geometry.GeoJSONType), "Polygon")
+	poly, err := fc.Features[0].Geometry.ToPolygon()
+	assert.Nil(t, err)
+	assert.Equal(t, len(poly.Coordinates[0].Coordinates), *options.NumVertices+1)
 }
 
 func checkFeaturesInBBox(t *testing.T, bbox *geojson.BBOX, fc []feature.Feature) {
