@@ -1,3 +1,5 @@
+# :hammer: [![GitHub release][release-img]][release] [![Build Status][ci-img]][ci] [![Coverage Status](https://coveralls.io/repos/github/tomchavakis/turf-go/badge.svg?branch=master)](https://coveralls.io/github/tomchavakis/turf-go?branch=master)
+
 # turf-go
 A Go language port of [Turfjs](http://turfjs.org/docs/)
 
