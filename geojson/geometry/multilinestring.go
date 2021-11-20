@@ -12,7 +12,7 @@ type MultiLineString struct {
 func NewMultiLineString(coordinates []LineString) (*MultiLineString, error) {
 
 	if len(coordinates) < 2 {
-		return nil, errors.New("according to the GeoJSON v1.0 spec a MultiLineString must have at least two or more positions")
+		return nil, errors.New("a MultiLineString must have at least two or more linestrings")
 	}
 
 	return &MultiLineString{Coordinates: coordinates}, nil

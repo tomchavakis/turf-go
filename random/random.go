@@ -37,7 +37,13 @@ type PolygonOptions struct {
 // Position returns a random position within a bounding box
 //
 // Examples:
-// 	random.Position(geojson.BBOX{West:  -180,South: -90,East:  180, North: 90 })
+// 	random.Position(
+//		geojson.BBOX{
+//			West:  -180,
+//			South: -90,
+//			East:  180,
+//			North: 90,
+//		})
 func Position(bbox geojson.BBOX) geometry.Position {
 	pos := coordInBBox(bbox)
 	res := geometry.NewPosition(nil, pos[0], pos[1])
@@ -49,8 +55,21 @@ func Position(bbox geojson.BBOX) geometry.Position {
 // count is how many geometries will be generated. default = 1
 //
 // Examples:
-// 	random.Point(0, geojson.BBOX{West:  -180,South: -90,East:  180, North: 90})
-// 	random.Point(10, geojson.BBOX{West:  -180,South: -90,East:  180, North: 90})
+// 	random.Point(0,
+//		geojson.BBOX{
+//			West:  -180,
+//			South: -90,
+//			East:  180,
+//			North: 90,
+//		})
+//
+// 	random.Point(10,
+//		geojson.BBOX{
+//			West:  -180,
+//			South: -90,
+//			East:  180,
+//			North: 90,
+//		})
 func Point(count int, bbox geojson.BBOX) (*feature.Collection, error) {
 	if count == 0 {
 		count = 1
@@ -155,10 +174,15 @@ func LineString(count int, options LineStringOptions) (*feature.Collection, erro
 // count=1 how many geometries will be generated
 //
 // Examples:
-// 	random.Polygon(10,PolygonOptions{
-//			BBox:             geojson.BBOX{West:  -180,South: -90,East:  180, North: 90},
-//			NumVertices:     nil,
-//			MaxRadialLength: nil,
+// 	random.Polygon(10, PolygonOptions{
+//		BBox:geojson.BBOX{
+//			West:  -180,
+//			South: -90,
+//			East:  180,
+//			North: 90,
+//		},
+//		NumVertices:     nil,
+//		MaxRadialLength: nil,
 //	})
 func Polygon(count int, options PolygonOptions) (*feature.Collection, error) {
 
