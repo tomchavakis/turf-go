@@ -3,6 +3,7 @@ package feature
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
@@ -60,7 +61,7 @@ func FromJSON(gjson string) (*Feature, error) {
 // ToPoint converts the Feature to Point.
 func (f *Feature) ToPoint() (*geometry.Point, error) {
 	if f.Geometry.GeoJSONType != geojson.Point {
-		return nil, errors.New("the feature must be a point")
+		return nil, errors.New("invalid geometry type")
 	}
 
 	var coords []float64
@@ -82,7 +83,7 @@ func (f *Feature) ToPoint() (*geometry.Point, error) {
 // ToMultiPoint converts the Feature to MultiPoint type.
 func (f *Feature) ToMultiPoint() (*geometry.MultiPoint, error) {
 	if f.Geometry.GeoJSONType != geojson.MultiPoint {
-		return nil, errors.New("the feature must be a MultiPoint")
+		return nil, errors.New("invalid geometry type")
 	}
 
 	var m geometry.MultiPoint
@@ -105,7 +106,7 @@ func (f *Feature) ToMultiPoint() (*geometry.MultiPoint, error) {
 // ToPolygon converts a Polygon Feature to Polygon geometry.
 func (f *Feature) ToPolygon() (*geometry.Polygon, error) {
 	if f.Geometry.GeoJSONType != geojson.Polygon {
-		return nil, errors.New("the feature must be a polygon")
+		return nil, errors.New("invalid geometry type")
 	}
 	var coords = []geometry.LineString{}
 
@@ -135,7 +136,7 @@ func (f *Feature) ToPolygon() (*geometry.Polygon, error) {
 	}
 	poly, err := geometry.NewPolygon(coords)
 	if err != nil {
-		return nil, errors.New("cannot create a new polygon")
+		return nil, fmt.Errorf("cannot create a new polygon %v", err.Error())
 	}
 	return poly, nil
 
@@ -144,7 +145,7 @@ func (f *Feature) ToPolygon() (*geometry.Polygon, error) {
 // ToMultiPolygon converts a MultiPolygon Feature to MultiPolygon geometry.
 func (f *Feature) ToMultiPolygon() (*geometry.MultiPolygon, error) {
 	if f.Geometry.GeoJSONType != geojson.MultiPolygon {
-		return nil, errors.New("the feature must be a multiPolygon")
+		return nil, errors.New("invalid geometry type")
 	}
 	var multiPolygonCoordinates [][][][]float64
 	ccc, err := json.Marshal(f.Geometry.Coordinates)
@@ -190,7 +191,7 @@ func (f *Feature) ToMultiPolygon() (*geometry.MultiPolygon, error) {
 // ToLineString converts a ToLineString Feature to ToLineString geometry.
 func (f *Feature) ToLineString() (*geometry.LineString, error) {
 	if f.Geometry.GeoJSONType != geojson.LineString {
-		return nil, errors.New("the feature must be a linestring")
+		return nil, errors.New("invalid geometry type")
 	}
 
 	var coords [][]float64
@@ -222,7 +223,7 @@ func (f *Feature) ToLineString() (*geometry.LineString, error) {
 // ToMultiLineString converts a MultiLineString faeture to MultiLineString geometry.
 func (f *Feature) ToMultiLineString() (*geometry.MultiLineString, error) {
 	if f.Geometry.GeoJSONType != geojson.MiltiLineString {
-		return nil, errors.New("the feature must be a multiLineString")
+		return nil, errors.New("invalid geometry type")
 	}
 	var coords [][][]float64
 	ccc, err := json.Marshal(f.Geometry.Coordinates)
