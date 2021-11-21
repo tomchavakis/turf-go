@@ -12,7 +12,7 @@ type MultiPoint struct {
 func NewMultiPoint(coordinates []Point) (*MultiPoint, error) {
 
 	if len(coordinates) < 2 {
-		return nil, errors.New("according to the GeoJSON v1.0 spec a MultiLineString must have at least two or more positions")
+		return nil, errors.New("a MultiPoint must have at least two or more positions")
 	}
 
 	return &MultiPoint{Coordinates: coordinates}, nil
