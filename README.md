@@ -130,7 +130,7 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 - [ ] featureReduce
 - [ ] flattenEach
 - [ ] flattenReduce
-- [ ] getCoord
+- [x] getCoord
 - [ ] getCoords
 - [ ] getGeom
 - [ ] getType
