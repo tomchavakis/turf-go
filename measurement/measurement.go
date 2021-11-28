@@ -554,11 +554,11 @@ func CentroidFeatureCollection(fc feature.Collection, properties map[string]inte
 // bearing as measured relative to true north.
 func RhumbBearing(start geometry.Point, end geometry.Point, final bool) (*float64, error) {
 	var bear360 float64
-	e, err := invariant.GetCoord(&end)
+	e, err := invariant.GetCoord(end)
 	if err != nil {
 		return nil, err
 	}
-	s, err := invariant.GetCoord(&start)
+	s, err := invariant.GetCoord(start)
 	if err != nil {
 		return nil, err
 	}
