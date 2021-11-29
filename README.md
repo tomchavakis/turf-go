@@ -27,7 +27,7 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 - [ ] pointOnFeature
 - [ ] polygonTangents
 - [ ] pointToLineDistance
-- [ ] rhumbBearing
+- [x] rhumbBearing
 - [ ] rhumbDestination
 - [ ] rhumbDistance
 - [ ] square
