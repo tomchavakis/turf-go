@@ -9,6 +9,7 @@ import (
 	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
+	"github.com/tomchavakis/turf-go/internal/common"
 	"github.com/tomchavakis/turf-go/utils"
 )
 
@@ -1178,5 +1179,75 @@ func TestCentroidFeatureCollection(t *testing.T) {
 	if p != nil {
 		assert.Equal(t, p.Lng, 6.774169921875)
 		assert.Equal(t, p.Lat, 47.486422855836416)
+	}
+}
+
+func TestRhumbBearing(t *testing.T) {
+	type RhumbObj struct {
+		start geometry.Point
+		end   geometry.Point
+		final bool
+	}
+	type args struct {
+		rhumbObj RhumbObj
+	}
+	tests := map[string]struct {
+		args    args
+		want    *float64
+		wantErr bool
+		err     error
+	}{
+		"point - start Bearing": {
+			args: args{
+				rhumbObj: RhumbObj{
+					start: geometry.Point{
+						Lat: 45.0,
+						Lng: -75.0,
+					},
+					end: geometry.Point{
+						Lat: 60.0,
+						Lng: 20.0,
+					},
+					final: false,
+				},
+			},
+			wantErr: false,
+			want:    common.Float64Ptr(75.28061364784332),
+			err:     nil,
+		},
+		"point - final Bearing": {
+			args: args{
+				rhumbObj: RhumbObj{
+					start: geometry.Point{
+						Lat: 45.0,
+						Lng: -75.0,
+					},
+					end: geometry.Point{
+						Lat: 60.0,
+						Lng: 20.0,
+					},
+					final: true,
+				},
+			},
+			wantErr: false,
+			want:    common.Float64Ptr(-104.7193863521567),
+			err:     nil,
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			geo, err := RhumbBearing(tt.args.rhumbObj.start, tt.args.rhumbObj.end, tt.args.rhumbObj.final)
+
+			if (err != nil) && tt.wantErr {
+				if err.Error() != tt.err.Error() {
+					t.Errorf("TestRhumbBearing() error = %v, wantErr %v", err, tt.err.Error())
+					return
+				}
+			}
+
+			if got := geo; !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("TestRhumbBearing() = %v, want %v", *got, *tt.want)
+			}
+		})
 	}
 }
