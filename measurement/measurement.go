@@ -9,7 +9,8 @@ import (
 	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
-	"github.com/tomchavakis/turf-go/meta/coordAll"
+	"github.com/tomchavakis/turf-go/invariant"
+	meta "github.com/tomchavakis/turf-go/meta/coordAll"
 )
 
 // Distance calculates the distance between two points in kilometers. This uses the Haversine formula
@@ -542,4 +543,56 @@ func CentroidFeatureCollection(fc feature.Collection, properties map[string]inte
 		return nil, err
 	}
 	return f, nil
+}
+
+// RhumbBearing takes two points and finds the bearing angle between them along a Rhumb line
+// final option calculates the final bearing if true
+// returns a bearing from north in decimal degrees, between -180 and 180 degrees (positive clockwise)
+// i.e the angle measured in degrees start the north line (0 degrees)
+// https://en.wikipedia.org/wiki/Rhumb_line
+// In navigation, a rhumb line or loxodrome is an arc crossing all meridians of longitude at the same angle, that is, a path with constant
+// bearing as measured relative to true north.
+func RhumbBearing(start geometry.Point, end geometry.Point, final bool) (*float64, error) {
+	var bear360 float64
+	e, err := invariant.GetCoord(&end)
+	if err != nil {
+		return nil, err
+	}
+	s, err := invariant.GetCoord(&start)
+	if err != nil {
+		return nil, err
+	}
+
+	if final {
+		bear360 = calculateRhumbBearing(e, s)
+	} else {
+		bear360 = calculateRhumbBearing(s, e)
+	}
+	var bear180 float64
+	if bear360 > 180.0 {
+		bear180 = -(360.0 - bear360)
+	} else {
+		bear180 = bear360
+	}
+	return &bear180, nil
+}
+
+// returns the bearing from 'this' point to destination point along a rhumb line.
+// adapted from geodesy https://github.com/chrisveness/geodesy/blob/master/latlon-spherical.js
+func calculateRhumbBearing(from []float64, to []float64) float64 {
+	φ := conversions.DegreesToRadians(from[1])
+	φ2 := conversions.DegreesToRadians(to[1])
+	Δλ := conversions.DegreesToRadians(to[0] - from[0])
+	// if deltaLamda is over 180° take shorter rhumb line across the anti-meridian:
+	if Δλ > math.Pi {
+		Δλ -= 2 * math.Pi
+	}
+	if Δλ < -math.Pi {
+		Δλ += 2 * math.Pi
+	}
+
+	Δψ := math.Log(math.Tan(φ2/2+math.Pi/4) / math.Tan(φ/2+math.Pi/4))
+	θ := math.Atan2(Δλ, Δψ)
+	tmp := conversions.RadiansToDegrees(θ) + 360.0
+	return math.Mod(tmp, 360)
 }
