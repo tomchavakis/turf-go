@@ -1251,3 +1251,67 @@ func TestRhumbBearing(t *testing.T) {
 		})
 	}
 }
+
+func TestRhumbDestination(t *testing.T) {
+	type RhumbObj struct {
+		geojson  string
+		bearing  float64
+		distance float64
+		units    string
+	}
+	type args struct {
+		rhumbObj RhumbObj
+	}
+	tests := map[string]struct {
+		args    args
+		want    *feature.Feature
+		wantErr bool
+		err     error
+	}{
+		"point - start Distance fiji east west 539 lng": {
+			args: args{
+				rhumbObj: RhumbObj{
+					bearing:  -90.0,
+					distance: 100.0,
+					units:    "",
+					geojson:  "{ \"type\": \"Feature\", \"properties\": { \"bearing\": -90, \"dist\": 100 }, \"geometry\": { \"type\": \"Point\", \"coordinates\": [-539.5, -16.5] } }",
+				},
+			},
+			wantErr: false,
+			want: &feature.Feature{
+				ID:         "",
+				Type:       "Feature",
+				Properties: nil,
+				Bbox:       []float64{},
+				Geometry: geometry.Geometry{
+					GeoJSONType: "Point",
+					Coordinates: []float64{-539.5009379451956, -16.5},
+				},
+			},
+			err: nil,
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+
+			g, err := feature.FromJSON(tt.args.rhumbObj.geojson)
+			assert.NotNil(t, err)
+			p, err := g.ToPoint()
+			assert.NotNil(t, err)
+			assert.NotNil(t, p)
+
+			geo, err := RhumbDestination(*p, tt.args.rhumbObj.distance, tt.args.rhumbObj.bearing, tt.args.rhumbObj.units, nil)
+
+			if (err != nil) && tt.wantErr {
+				if err.Error() != tt.err.Error() {
+					t.Errorf("TestRhumbDestination() error = %v, wantErr %v", err, tt.err.Error())
+					return
+				}
+			}
+
+			if got := geo; !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("TestRhumbDestination() = %v, want %v", *got, *tt.want)
+			}
+		})
+	}
+}

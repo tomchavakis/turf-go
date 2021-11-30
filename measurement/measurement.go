@@ -9,6 +9,7 @@ import (
 	"github.com/tomchavakis/turf-go/geojson"
 	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/geojson/geometry"
+	"github.com/tomchavakis/turf-go/internal/common"
 	"github.com/tomchavakis/turf-go/invariant"
 	meta "github.com/tomchavakis/turf-go/meta/coordAll"
 )
@@ -583,7 +584,7 @@ func calculateRhumbBearing(from []float64, to []float64) float64 {
 	φ := conversions.DegreesToRadians(from[1])
 	φ2 := conversions.DegreesToRadians(to[1])
 	Δλ := conversions.DegreesToRadians(to[0] - from[0])
-	// if deltaLamda is over 180° take shorter rhumb line across the anti-meridian:
+	// if Δλ is over 180° take shorter rhumb line across the anti-meridian:
 	if Δλ > math.Pi {
 		Δλ -= 2 * math.Pi
 	}
@@ -595,4 +596,88 @@ func calculateRhumbBearing(from []float64, to []float64) float64 {
 	θ := math.Atan2(Δλ, Δψ)
 	tmp := conversions.RadiansToDegrees(θ) + 360.0
 	return math.Mod(tmp, 360)
+}
+
+// RhumbDestination returns the destination having travelled the given distance along a Rhumb line from the origin Point with the (varant) given bearing.
+// If you maintain a constant bearing along a rhumb line, you will gradually spiral towards one of the poles. ref. http://www.movable-type.co.uk/scripts/latlong.html#rhumblines
+func RhumbDestination(origin geometry.Point, distance float64, bearing float64, units string, properties map[string]interface{}) (*feature.Feature, error) {
+	wasNegativeDistance := distance < 0
+	distanceInMeters, err := conversions.ConvertLength(math.Abs(distance), units, "meters")
+	if err != nil {
+		return nil, err
+	}
+
+	if wasNegativeDistance {
+		distanceInMeters = -math.Abs(distanceInMeters)
+	}
+	coords, err := invariant.GetCoord(&origin)
+	if err != nil {
+		return nil, err
+	}
+
+	destination := calculateRhumbDestination(coords, distanceInMeters, bearing, nil)
+
+	// compensate the crossing of the 180th meridian (https://macwright.org/2016/09/26/the-180th-meridian.html)
+	// solution from https://github.com/mapbox/mapbox-gl-js/issues/3250#issuecomment-294887678
+
+	if destination[0]-coords[0] > 180.0 {
+		destination[0] += -360.0
+	} else {
+		if coords[0]-destination[0] > 180.0 {
+			destination[0] += 360
+		} else {
+			destination[0] = 0
+		}
+	}
+
+	result := feature.Feature{
+		Type:       "Feature",
+		Properties: properties,
+		Bbox:       []float64{},
+		Geometry: geometry.Geometry{
+			GeoJSONType: "Point",
+			Coordinates: destination,
+		},
+	}
+
+	return &result, nil
+}
+
+// Adapted from Geodesy: http://www.movable-type.co.uk/scripts/latlong.html#rhumblines
+func calculateRhumbDestination(origin []float64, distance float64, bearing float64, radius *float64) []float64 {
+	if radius == nil {
+		radius = common.Float64Ptr(constants.EarthRadius)
+	}
+
+	// angular distance in radians
+	δ := distance / *radius
+	// to radians, but without normalize to π
+	λ1 := (origin[0] * math.Pi) / 180.0
+	φ1 := conversions.DegreesToRadians(origin[1])
+	θ := conversions.DegreesToRadians(bearing)
+
+	Δφ := δ * math.Cos(θ)
+	φ2 := φ1 + Δφ
+
+	if math.Abs(φ2) > math.Pi/2 {
+		if φ2 > 0 {
+			φ2 = math.Pi - φ2
+		} else {
+			φ2 = -math.Pi - φ2
+		}
+	}
+
+	Δψ := math.Log(math.Tan((φ2/2)+(math.Pi/4)) / math.Tan((φ1/2)+(math.Pi/4)))
+	q := 0.0
+	if math.Abs(Δψ) > 10e-12 {
+		q = Δφ / Δψ
+	} else {
+		q = math.Cos(φ1)
+	}
+
+	Δλ := (δ * math.Sin(θ)) / q
+	λ2 := λ1 + Δλ
+
+	// normalise to -180...+180
+	return []float64{(math.Mod(((λ2*180.0)/math.Pi+540), 360) - 180.0), (φ2 * 180.0) / math.Pi}
 }
