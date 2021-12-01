@@ -1,6 +1,7 @@
 package measurement
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
@@ -1268,7 +1269,42 @@ func TestRhumbDestination(t *testing.T) {
 		wantErr bool
 		err     error
 	}{
-		"point - start Distance fiji east west 539 lng": {
+		"error - invalid units": {
+			args: args{
+				rhumbObj: RhumbObj{
+					bearing:  -90.0,
+					distance: 100.0,
+					units:    "inv",
+					geojson:  "{ \"type\": \"Feature\", \"properties\": { \"bearing\": -90, \"dist\": 100 }, \"geometry\": { \"type\": \"Point\", \"coordinates\": [-539.5, -16.5] } }",
+				},
+			},
+			wantErr: true,
+			want:    nil,
+			err:     errors.New("invalid units"),
+		},
+		"point - negative distance": {
+			args: args{
+				rhumbObj: RhumbObj{
+					bearing:  -90.0,
+					distance: -1.0,
+					units:    "",
+					geojson:  "{ \"type\": \"Feature\", \"properties\": { \"bearing\": -90, \"dist\": -1 }, \"geometry\": { \"type\": \"Point\", \"coordinates\": [-539.5, -16.5] } }",
+				},
+			},
+			wantErr: false,
+			want: &feature.Feature{
+				ID:         "",
+				Type:       "Feature",
+				Properties: nil,
+				Bbox:       []float64{},
+				Geometry: geometry.Geometry{
+					GeoJSONType: "Point",
+					Coordinates: []float64{-539.499990620548, -16.5},
+				},
+			},
+			err: nil,
+		},
+		"point - fiji east west 539 lng": {
 			args: args{
 				rhumbObj: RhumbObj{
 					bearing:  -90.0,
@@ -1286,6 +1322,114 @@ func TestRhumbDestination(t *testing.T) {
 				Geometry: geometry.Geometry{
 					GeoJSONType: "Point",
 					Coordinates: []float64{-539.5009379451956, -16.5},
+				},
+			},
+			err: nil,
+		},
+		"point - fiji east west": {
+			args: args{
+				rhumbObj: RhumbObj{
+					bearing:  -90.0,
+					distance: 100.0,
+					units:    "",
+					geojson:  "{ \"type\": \"Feature\", \"properties\": { \"bearing\": -90, \"dist\": 100 }, \"geometry\": { \"type\": \"Point\", \"coordinates\": [-179.5, -16.5] } }",
+				},
+			},
+			wantErr: false,
+			want: &feature.Feature{
+				ID:         "",
+				Type:       "Feature",
+				Properties: nil,
+				Bbox:       []float64{},
+				Geometry: geometry.Geometry{
+					GeoJSONType: "Point",
+					Coordinates: []float64{-179.50093794519552, -16.5},
+				},
+			},
+			err: nil,
+		},
+		"point - fiji west east": {
+			args: args{
+				rhumbObj: RhumbObj{
+					bearing:  120.0,
+					distance: 150.0,
+					units:    "",
+					geojson:  "{ \"type\": \"Feature\", \"properties\": { \"bearing\": 120, \"dist\": 150 }, \"geometry\": { \"type\": \"Point\", \"coordinates\": [179.5, -16.5] } }",
+				},
+			},
+			wantErr: false,
+			want: &feature.Feature{
+				ID:         "",
+				Type:       "Feature",
+				Properties: nil,
+				Bbox:       []float64{},
+				Geometry: geometry.Geometry{
+					GeoJSONType: "Point",
+					Coordinates: []float64{179.5012184286744, -16.500674490272797},
+				},
+			},
+			err: nil,
+		},
+		"point - no bearing - no distance": {
+			args: args{
+				rhumbObj: RhumbObj{
+					bearing: 0,
+					units:   "",
+					geojson: "{ \"type\": \"Feature\", \"properties\": { \"bearing\": 0 }, \"geometry\": { \"type\": \"Point\", \"coordinates\": [-75, 38.10096062273525] } }",
+				},
+			},
+			wantErr: false,
+			want: &feature.Feature{
+				ID:         "",
+				Type:       "Feature",
+				Properties: nil,
+				Bbox:       []float64{},
+				Geometry: geometry.Geometry{
+					GeoJSONType: "Point",
+					Coordinates: []float64{-75, 38.10096062273525},
+				},
+			},
+			err: nil,
+		},
+		"point - vertical bearing no distance": {
+			args: args{
+				rhumbObj: RhumbObj{
+					bearing: 90.0,
+					units:   "",
+					geojson: "{ \"type\": \"Feature\", \"properties\": { \"bearing\": 90 }, \"geometry\": { \"type\": \"Point\", \"coordinates\": [-75, 39] } }",
+				},
+			},
+			wantErr: false,
+			want: &feature.Feature{
+				ID:         "",
+				Type:       "Feature",
+				Properties: nil,
+				Bbox:       []float64{},
+				Geometry: geometry.Geometry{
+					GeoJSONType: "Point",
+					Coordinates: []float64{-75, 39},
+				},
+			},
+			err: nil,
+		},
+		"point - big distance": {
+			args: args{
+				rhumbObj: RhumbObj{
+					bearing:  90.0,
+					distance: 5000,
+					units:    constants.UnitMiles,
+					geojson:  "{ \"type\": \"Feature\", \"properties\": { \"bearing\": 90, \"distance\": 5000 }, \"geometry\": { \"type\": \"Point\", \"coordinates\": [-75, 39] } }",
+				},
+			},
+			wantErr: false,
+			want: &feature.Feature{
+				ID:         "",
+				Type:       "Feature",
+				Properties: nil,
+				Bbox:       []float64{},
+				Geometry: geometry.Geometry{
+					GeoJSONType: "Point",
+					Coordinates: []float64{18.117374548567227, 39},
 				},
 			},
 			err: nil,

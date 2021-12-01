@@ -602,7 +602,7 @@ func calculateRhumbBearing(from []float64, to []float64) float64 {
 // If you maintain a constant bearing along a rhumb line, you will gradually spiral towards one of the poles. ref. http://www.movable-type.co.uk/scripts/latlong.html#rhumblines
 func RhumbDestination(origin geometry.Point, distance float64, bearing float64, units string, properties map[string]interface{}) (*feature.Feature, error) {
 	wasNegativeDistance := distance < 0
-	distanceInMeters, err := conversions.ConvertLength(math.Abs(distance), units, "meters")
+	distanceInMeters, err := conversions.ConvertLength(math.Abs(distance), units, constants.UnitMeters)
 	if err != nil {
 		return nil, err
 	}
@@ -626,7 +626,7 @@ func RhumbDestination(origin geometry.Point, distance float64, bearing float64, 
 		if coords[0]-destination[0] > 180.0 {
 			destination[0] += 360
 		} else {
-			destination[0] = 0
+			destination[0] += 0
 		}
 	}
 
@@ -659,7 +659,7 @@ func calculateRhumbDestination(origin []float64, distance float64, bearing float
 	Δφ := δ * math.Cos(θ)
 	φ2 := φ1 + Δφ
 
-	if math.Abs(φ2) > math.Pi/2 {
+	if math.Abs(φ2) > (math.Pi / 2) {
 		if φ2 > 0 {
 			φ2 = math.Pi - φ2
 		} else {
@@ -669,7 +669,7 @@ func calculateRhumbDestination(origin []float64, distance float64, bearing float
 
 	Δψ := math.Log(math.Tan((φ2/2)+(math.Pi/4)) / math.Tan((φ1/2)+(math.Pi/4)))
 	q := 0.0
-	if math.Abs(Δψ) > 10e-12 {
+	if math.Abs(Δψ) > (10e-12) {
 		q = Δφ / Δψ
 	} else {
 		q = math.Cos(φ1)
