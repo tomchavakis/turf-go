@@ -99,15 +99,15 @@ func Length(t interface{}, units string) (float64, error) {
 	var l float64
 	switch gtp := t.(type) {
 	case []geometry.Point:
-		l, err = lenth(gtp, units)
+		l, err = length(gtp, units)
 		result = l
 	case geometry.LineString:
-		l, err = lenth(gtp.Coordinates, units)
+		l, err = length(gtp.Coordinates, units)
 		result = l
 	case geometry.MultiLineString:
 		coords := gtp.Coordinates // []LineString
 		for _, c := range coords {
-			l, err = lenth(c.Coordinates, units)
+			l, err = length(c.Coordinates, units)
 			if err != nil {
 				break
 			}
@@ -115,7 +115,7 @@ func Length(t interface{}, units string) (float64, error) {
 		}
 	case geometry.Polygon:
 		for _, c := range gtp.Coordinates {
-			l, err = lenth(c.Coordinates, units)
+			l, err = length(c.Coordinates, units)
 			if err != nil {
 				break
 			}
@@ -125,7 +125,7 @@ func Length(t interface{}, units string) (float64, error) {
 		coords := gtp.Coordinates
 		for _, coord := range coords {
 			for _, pl := range coord.Coordinates {
-				l, err = lenth(pl.Coordinates, units)
+				l, err = length(pl.Coordinates, units)
 				if err != nil {
 					break
 				}
@@ -137,7 +137,7 @@ func Length(t interface{}, units string) (float64, error) {
 }
 
 // http://turfjs.org/docs/#linedistance
-func lenth(coords []geometry.Point, units string) (float64, error) {
+func length(coords []geometry.Point, units string) (float64, error) {
 	travelled := 0.0
 	prevCoords := coords[0]
 	var currentCoords geometry.Point
