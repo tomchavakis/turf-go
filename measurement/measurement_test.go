@@ -1459,3 +1459,104 @@ func TestRhumbDestination(t *testing.T) {
 		})
 	}
 }
+
+func TestRhumbDistance(t *testing.T) {
+	type RhumbObj struct {
+		from geometry.Point
+		to   geometry.Point
+	}
+	type args struct {
+		rhumbObj RhumbObj
+	}
+	tests := map[string]struct {
+		args    args
+		want    *float64
+		wantErr bool
+		err     error
+	}{
+		"rhumbdistance - fiji 539": {
+			args: args{
+				rhumbObj: RhumbObj{
+					from: geometry.Point{
+						Lat: -16.5,
+						Lng: -539.5,
+					},
+					to: geometry.Point{
+						Lat: -18.5,
+						Lng: -541.5,
+					},
+				},
+			},
+			wantErr: false,
+			want:    common.Float64Ptr(307.30629278030636),
+			err:     nil,
+		},
+		"rhumbdistance - fiji": {
+			args: args{
+				rhumbObj: RhumbObj{
+					from: geometry.Point{
+						Lat: -16.5,
+						Lng: -179.5,
+					},
+					to: geometry.Point{
+						Lat: -16.5,
+						Lng: 178.5,
+					},
+				},
+			},
+			wantErr: false,
+			want:    common.Float64Ptr(213.23207469632695),
+			err:     nil,
+		},
+		"rhumbdistance - fiji 1": {
+			args: args{
+				rhumbObj: RhumbObj{
+					from: geometry.Point{
+						Lat: 39.984,
+						Lng: -75.343,
+					},
+					to: geometry.Point{
+						Lat: 39.123,
+						Lng: -75.534,
+					},
+				},
+			},
+			wantErr: false,
+			want:    common.Float64Ptr(97.12923942772163),
+			err:     nil,
+		},
+		"rhumbdistance - fiji 2": {
+			args: args{
+				rhumbObj: RhumbObj{
+					from: geometry.Point{
+						Lat: 35.60371874069731,
+						Lng: -119.17968749999999,
+					},
+					to: geometry.Point{
+						Lat: 46.92025531537451,
+						Lng: -67.5,
+					},
+				},
+			},
+			wantErr: false,
+			want:    common.Float64Ptr(4482.044244192197),
+			err:     nil,
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			geo, err := RhumbDistance(tt.args.rhumbObj.from, tt.args.rhumbObj.to, "")
+
+			if (err != nil) && tt.wantErr {
+				if err.Error() != tt.err.Error() {
+					t.Errorf("TestRhumbDistance() error = %v, wantErr %v", err, tt.err.Error())
+					return
+				}
+			}
+
+			if got := geo; !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("TestRhumbDistance() = %v, want %v", *got, *tt.want)
+			}
+		})
+	}
+}

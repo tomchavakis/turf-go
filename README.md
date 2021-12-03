@@ -29,7 +29,7 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 - [ ] pointToLineDistance
 - [x] rhumbBearing
 - [x] rhumbDestination
-- [ ] rhumbDistance
+- [x] rhumbDistance
 - [ ] square
 - [ ] greatCircle
 
