@@ -712,7 +712,7 @@ func RhumbDistance(from geometry.Point, to geometry.Point, units string) (*float
 	return &distance, nil
 }
 
-// returns the distance travelling from 'this' point to destination point aling a rhumb line.
+// returns the distance travelling from 'this' point to destination point along a rhumb line.
 // adapted from Geodesy: https://github.com/chrisveness/geodesy/blob/master/latlon-spherical.js
 func calculateRhumbDistance(origin []float64, destination []float64, radius *float64) float64 {
 	if radius == nil {
