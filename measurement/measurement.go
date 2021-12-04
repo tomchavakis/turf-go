@@ -681,3 +681,66 @@ func calculateRhumbDestination(origin []float64, distance float64, bearing float
 	// normalise to -180...+180
 	return []float64{(math.Mod(((λ2*180.0)/math.Pi+540), 360) - 180.0), (φ2 * 180.0) / math.Pi}
 }
+
+// RhumbDistance calculates the distance along a rhumb line between two points.
+func RhumbDistance(from geometry.Point, to geometry.Point, units string) (*float64, error) {
+	origin, err := invariant.GetCoord(&from)
+	if err != nil {
+		return nil, err
+	}
+	destination, err := invariant.GetCoord(&to)
+	if err != nil {
+		return nil, err
+	}
+	// compensate the crossing of the 180th meridian (https://macwright.org/2016/09/26/the-180th-meridian.html)
+	// solution from https://github.com/mapbox/mapbox-gl-js/issues/3250#issuecomment-294887678
+
+	if destination[0]-origin[0] > 180.0 {
+		destination[0] += -360.0
+	} else {
+		if origin[0]-destination[0] > 180.0 {
+			destination[0] += 360
+		} else {
+			destination[0] += 0
+		}
+	}
+	distanceInMeters := calculateRhumbDistance(origin, destination, nil)
+	distance, err := conversions.ConvertLength(distanceInMeters, constants.UnitMeters, units)
+	if err != nil {
+		return nil, err
+	}
+	return &distance, nil
+}
+
+// returns the distance travelling from 'this' point to destination point along a rhumb line.
+// adapted from Geodesy: https://github.com/chrisveness/geodesy/blob/master/latlon-spherical.js
+func calculateRhumbDistance(origin []float64, destination []float64, radius *float64) float64 {
+	if radius == nil {
+		radius = common.Float64Ptr(constants.EarthRadius)
+	}
+
+	φ1 := (origin[1] * math.Pi) / 180.0
+	φ2 := (destination[1] * math.Pi) / 180.0
+	Δφ := φ2 - φ1
+	Δλ := (math.Abs(destination[0]-origin[0]) * math.Pi) / 180.0
+	// if dLon over 180° take shorter rhumb line across the anti-meridian:
+	if Δλ > math.Pi {
+		Δλ -= 2 * math.Pi
+	}
+
+	// on Mercator projection, longitude distances shrink by latitude; q is the 'stretch factor'
+	// q becomes ill-conditioned along E-W line (0/0); use empirical tolerance to avoid it
+	Δψ := math.Log(math.Tan(φ2/2+math.Pi/4) / math.Tan(φ1/2+math.Pi/4))
+
+	q := 0.0
+	if math.Abs(Δψ) > 10e-12 {
+		q = Δφ / Δψ
+	} else {
+		q = math.Cos(φ1)
+	}
+	// distance is pythagoras on 'stretched' Mercator projection
+	Δ := math.Sqrt(Δφ*Δφ + q*q*Δλ*Δλ) // angular distance in radians
+	dist := Δ * *radius
+
+	return dist
+}
