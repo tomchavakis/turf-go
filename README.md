@@ -1,4 +1,5 @@
 # :hammer: [![release](https://badgen.net/github/release/tomchavakis/turf-go)](https://github.com/tomchavakis/turf-go/releases/latest) [![GoDoc](https://godoc.org/github.com/tomchavakis/turf-go?status.svg)](https://godoc.org/github.com/tomchavakis/turf-go) [![GitHub license](https://badgen.net/github/license/tomchavakis/turf-go)](https://github.com/tomchavakis/turf-go/blob/master/LICENSE) [![Go Report Card](https://goreportcard.com/badge/github.com/tomchavakis/turf-go)](https://goreportcard.com/report/github.com/tomchavakis/turf-go) [![Coverage Status](https://coveralls.io/repos/github/tomchavakis/turf-go/badge.svg?branch=master)](https://coveralls.io/github/tomchavakis/turf-go?branch=master)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftomchavakis%2Fturf-go.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftomchavakis%2Fturf-go?ref=badge_shield)
 
 # turf-go
 A Go language port of [Turfjs](http://turfjs.org/docs/)
@@ -183,3 +184,7 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 https://github.com/mapbox/mapbox-java
 
 https://github.com/Turfjs/turf
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftomchavakis%2Fturf-go.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftomchavakis%2Fturf-go?ref=badge_large)
