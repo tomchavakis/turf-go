@@ -122,7 +122,7 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 - [ ] clustersDbscan
 - [ ] clustersKmeans
 
-## Meta
+## Meta - Invariant
 - [x] coordAll
 - [x] coordEach
 - [ ] coordReduce
@@ -131,9 +131,9 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 - [ ] flattenEach
 - [ ] flattenReduce
 - [x] getCoord
-- [ ] getCoords
+- [x] getCoords
 - [ ] getGeom
-- [ ] getType
+- [x] getType
 - [ ] geomEach
 - [ ] geomReduce
 - [ ] propEach

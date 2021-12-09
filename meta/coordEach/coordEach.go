@@ -196,7 +196,7 @@ func coordsEachFromSingleGeometry(pointList []geometry.Point, g *geometry.Geomet
 		g.Coordinates = ln.Coordinates
 	}
 
-	if g.GeoJSONType == geojson.MiltiLineString {
+	if g.GeoJSONType == geojson.MultiLineString {
 		mln, err := g.ToMultiLineString()
 		if err != nil {
 			return nil, err

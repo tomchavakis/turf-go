@@ -10,8 +10,8 @@ const (
 	MultiPoint OBjectType = "MultiPoint"
 	// LineString Defines a LineString Type https://tools.ietf.org/html/rfc7946#section-3.1.4
 	LineString OBjectType = "LineString"
-	// MiltiLineString Defines a MultiLineString Type https://tools.ietf.org/html/rfc7946#section-3.1.5
-	MiltiLineString OBjectType = "MultiLineString"
+	// MultiLineString Defines a MultiLineString Type https://tools.ietf.org/html/rfc7946#section-3.1.5
+	MultiLineString OBjectType = "MultiLineString"
 	// Polygon Defines a Polygon Type https://tools.ietf.org/html/rfc7946#section-3.1.6
 	Polygon OBjectType = "Polygon"
 	// MultiPolygon Defines a MultiPolygon Type https://tools.ietf.org/html/rfc7946#section-3.1.7

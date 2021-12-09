@@ -168,7 +168,7 @@ func coordsAllFromSingleGeometry(pointList []geometry.Point, g geometry.Geometry
 		pointList = appendCoordsToLineString(pointList, *ln)
 	}
 
-	if g.GeoJSONType == geojson.MiltiLineString {
+	if g.GeoJSONType == geojson.MultiLineString {
 		mln, err := g.ToMultiLineString()
 		if err != nil {
 			return nil, err
