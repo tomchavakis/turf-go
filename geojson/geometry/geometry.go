@@ -198,7 +198,7 @@ func (g *Geometry) ToLineString() (*LineString, error) {
 
 // ToMultiLineString converts a MultiLineString faeture to MultiLineString geometry.
 func (g *Geometry) ToMultiLineString() (*MultiLineString, error) {
-	if g.GeoJSONType != geojson.MiltiLineString {
+	if g.GeoJSONType != geojson.MultiLineString {
 		return nil, errors.New("invalid geometry type")
 	}
 	var coords [][][]float64
