@@ -262,12 +262,12 @@ func TestLineDistanceMultiLineString(t *testing.T) {
 		t.Errorf("LoadJSONFixture error: %v", err)
 	}
 
-	feature, err := feature.FromJSON(gjson1)
+	fs, err := feature.FromJSON(gjson1)
 	if err != nil {
 		t.Errorf("FromJSON error: %v", err)
 	}
 
-	mls, err := feature.ToMultiLineString()
+	mls, err := fs.ToMultiLineString()
 	if err != nil {
 		t.Errorf("ToMultiLineString error: %v", err)
 	}
@@ -1559,4 +1559,301 @@ func TestRhumbDistance(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestInBBox(t *testing.T)  {
+	tests := map[string]struct {
+		point   geometry.Point
+		bbox    []float64
+		want    bool
+	}{
+		"point in bbox": {
+			point:	geometry.Point{
+				Lng: 116.0,
+				Lat: -20.0,
+			},
+			bbox: []float64{
+				113.0, -39.0, 154.0, -15.0,
+			},
+			want: true,
+		},
+		"point on bbox": {
+			point:	geometry.Point{
+				Lng: 116.0,
+				Lat: -20.0,
+			},
+			bbox: []float64{
+				116.0, -20.0, 154.0, -15.0,
+			},
+			want: true,
+		},
+		"point not in bbox": {
+			point:	geometry.Point{
+				Lng: -20.0,
+				Lat: 116.0,
+			},
+			bbox: []float64{
+				113.0, -39.0, 154.0, -15.0,
+			},
+			want: false,
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, inBBox(tt.point, tt.bbox), tt.want)
+		})
+	}
+}
+
+
+func TestInRing(t *testing.T) {
+	tests := map[string]struct {
+		point   		geometry.Point
+		ring    		[]geometry.Point
+		ignoreBoundary 	bool
+		want    		bool
+	} {
+		"point in ring": {
+			point: geometry.Point{
+				Lng: 50.0,
+				Lat: 50.0,
+			},
+			ring: []geometry.Point {
+				{
+					Lng: 0.0,
+					Lat: 0.0,
+				},
+				{
+					Lng: 0.0,
+					Lat: 100.0,
+				},
+				{
+					Lng: 100.0,
+					Lat: 100.0,
+				},
+				{
+					Lng: 100.0,
+					Lat: 0.0,
+				},
+				{
+					Lng: 0.0,
+					Lat: 0.0,
+				},
+			},
+			ignoreBoundary: false,
+			want: true,
+		},
+		"point not in ring": {
+			point: geometry.Point{
+				Lng: -50.0,
+				Lat: -50.0,
+			},
+			ring: []geometry.Point {
+				{
+					Lng: 0.0,
+					Lat: 0.0,
+				},
+				{
+					Lng: 0.0,
+					Lat: 100.0,
+				},
+				{
+					Lng: 100.0,
+					Lat: 100.0,
+				},
+				{
+					Lng: 100.0,
+					Lat: 0.0,
+				},
+				{
+					Lng: 0.0,
+					Lat: 0.0,
+				},
+			},
+			ignoreBoundary: false,
+			want: false,
+		},
+		"point on ring": {
+			point: geometry.Point{
+				Lng: 0.0,
+				Lat: 0.0,
+			},
+			ring: []geometry.Point {
+				{
+					Lng: 0.0,
+					Lat: 0.0,
+				},
+				{
+					Lng: 0.0,
+					Lat: 100.0,
+				},
+				{
+					Lng: 100.0,
+					Lat: 100.0,
+				},
+				{
+					Lng: 100.0,
+					Lat: 0.0,
+				},
+				{
+					Lng: 0.0,
+					Lat: 0.0,
+				},
+			},
+			ignoreBoundary: false,
+			want: true,
+		},
+		"point on ring, ignore boundary": {
+			point: geometry.Point{
+				Lng: 0.0,
+				Lat: 0.0,
+			},
+			ring: []geometry.Point {
+				{
+					Lng: 0.0,
+					Lat: 0.0,
+				},
+				{
+					Lng: 0.0,
+					Lat: 100.0,
+				},
+				{
+					Lng: 100.0,
+					Lat: 100.0,
+				},
+				{
+					Lng: 100.0,
+					Lat: 0.0,
+				},
+				{
+					Lng: 0.0,
+					Lat: 0.0,
+				},
+			},
+			ignoreBoundary: true,
+			want: false,
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, inRing(tt.point, tt.ring, tt.ignoreBoundary), tt.want)
+		})
+	}
+}
+
+
+func TestInPolygon(t *testing.T) {
+	fs, err := createFeature(t, AreaPolygon)
+	if err != nil {
+		t.Errorf("createFeature error = %v", err)
+	}
+	tests := map[string]struct {
+		point   geometry.Point
+		polygon    geometry.Geometry
+		want    bool
+	} {
+		"point in polygon": {
+			point: geometry.Point{
+				Lng: 133.0,
+				Lat: -26.857142857142858,
+			},
+			polygon: fs.Geometry,
+			want: true,
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, pointOnPolygon(tt.point, tt.polygon), tt.want)
+		})
+	}
+}
+
+
+func TestPointOnFeature(t *testing.T) {
+	fs, err := createFeature(t, AreaPolygon)
+	if err != nil {
+		t.Errorf("createFeature error = %v", err)
+	}
+
+	p, err := PointOnFeature(*fs, nil, "")
+	if err != nil {
+		t.Errorf("PointOnFeature error = %v", err)
+	} else {
+		if p == nil {
+			t.Error("point cannot be empty")
+		}
+		if p != nil {
+			assert.Equal(t, p.Lng, 133.0)
+			assert.Equal(t, p.Lat, -26.857142857142858)
+		}
+		return
+	}
+}
+
+func TestPointOnFeatureOfImbalancedPolygon(t *testing.T) {
+	fs, err := createFeature(t, ImbalancedPolygon)
+	if err != nil {
+		t.Errorf("createFeature error = %v", err)
+	}
+
+	p, err := PointOnFeature(*fs, nil, "")
+	if err != nil {
+		t.Errorf("PointOnFeature error = %v", err)
+	} else {
+		if p == nil {
+			t.Error("point cannot be empty")
+		}
+		if p != nil {
+			assert.Equal(t, p.Lng, 4.851791984156558)
+			assert.Equal(t, p.Lat, 45.78143055383553)
+		}
+		return
+	}
+}
+
+func TestPointOnFeatureCollection(t *testing.T) {
+	fc, err := createFeatureCollection(t, AreaFeatureCollection)
+	if err != nil {
+		t.Errorf("createFeatureCollection error: %v", err)
+	}
+
+	p, err := PointOnFeatureCollection(*fc, nil, "")
+	if err != nil {
+		t.Errorf("PointOnFeature error = %v", err)
+	} else {
+		if p == nil {
+			t.Error("point cannot be empty")
+		}
+		if p != nil {
+			assert.Equal(t, p.Lng, 6.774169921875)
+			assert.Equal(t, p.Lat, 47.486422855836416)
+		}
+		return
+	}
+}
+
+
+func createFeature(t *testing.T, geometryString string) (*feature.Feature, error) {
+	gjson, err := utils.LoadJSONFixture(geometryString)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error: %v", err)
+	}
+	fs, err := feature.FromJSON(gjson)
+	if err != nil {
+		t.Errorf("FromJSON error: %v", err)
+	}
+	return fs, err
+}
+
+func createFeatureCollection(t *testing.T, geometryString string) (*feature.Collection, error) {
+	gjson, err := utils.LoadJSONFixture(geometryString)
+	if err != nil {
+		t.Errorf("LoadJSONFixture error: %v", err)
+	}
+	fs, err := feature.CollectionFromJSON(gjson)
+	if err != nil {
+		t.Errorf("FromJSON error: %v", err)
+	}
+	return fs, err
 }

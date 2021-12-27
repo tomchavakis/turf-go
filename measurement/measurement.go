@@ -2,8 +2,6 @@ package measurement
 
 import (
 	"errors"
-	"math"
-
 	"github.com/tomchavakis/turf-go/constants"
 	"github.com/tomchavakis/turf-go/conversions"
 	"github.com/tomchavakis/turf-go/geojson"
@@ -11,7 +9,8 @@ import (
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 	"github.com/tomchavakis/turf-go/internal/common"
 	"github.com/tomchavakis/turf-go/invariant"
-	meta "github.com/tomchavakis/turf-go/meta/coordAll"
+	"github.com/tomchavakis/turf-go/meta/coordAll"
+	"math"
 )
 
 // Distance calculates the distance between two points in kilometers. This uses the Haversine formula
@@ -743,4 +742,207 @@ func calculateRhumbDistance(origin []float64, destination []float64, radius *flo
 	dist := Δ * *radius
 
 	return dist
+}
+
+// PointOnFeature takes a Feature and returns a point guaranteed to be on the surface of the feature.
+func PointOnFeature(f feature.Feature, properties map[string]interface{}, id string) (*geometry.Point, error) {
+	fs := []feature.Feature{}
+	fs = append(fs, f)
+	fc, err := feature.NewFeatureCollection(fs)
+	if err != nil {
+		return nil, err
+	}
+	return PointOnFeatureCollection(*fc, properties, id)
+}
+
+// PointOnFeatureCollection gets a feature collection and returns a point guaranteed to be on the surface of the feature.
+func PointOnFeatureCollection(fc feature.Collection, properties map[string]interface{}, id string) (*geometry.Point, error) {
+	centroid, err := CentroidFeatureCollection(fc, properties, id)
+	if err != nil {
+		return nil, err
+	}
+	cent, err := centroid.ToPoint()
+	var onSurface = false
+
+	for i := 0; !onSurface && i < len(fc.Features); i++ {
+		var geom = fc.Features[i].Geometry
+		onSurface = pointOnFeatureCollection(geom, *cent)
+	}
+
+	return cent, nil
+}
+
+func pointOnFeatureCollection(g geometry.Geometry, cent geometry.Point) bool {
+	var x, y, x1, y1, x2, y2 float64
+	var onBorderOrPoint = false
+	var onSurface = false
+
+	switch g.GeoJSONType {
+	case geojson.Point:
+		point, err := g.ToPoint()
+		if err != nil {
+			return false
+		}
+		if cent.Lat == point.Lat && cent.Lng == point.Lng {
+			onSurface = true
+		}
+	case geojson.MultiPoint:
+		var onMultiPoint = false
+		points, err := g.ToMultiPoint()
+		if err != nil {
+			return false
+		}
+
+		for k := 0; !onMultiPoint && k < len(points.Coordinates); k++ {
+			if cent.Lat == points.Coordinates[k].Lat && cent.Lng == points.Coordinates[k].Lng {
+				onSurface = true
+				onMultiPoint = true
+			}
+		}
+
+		onBorderOrPoint = onMultiPoint
+	case geojson.LineString:
+		lineString, err := g.ToLineString()
+		if err != nil {
+			return false
+		}
+		for k := 0; !onBorderOrPoint && k < (len(lineString.Coordinates) - 1); k++ {
+			x = cent.Lat
+			y = cent.Lng
+			x1 = lineString.Coordinates[k].Lat
+			y1 = lineString.Coordinates[k].Lng
+			x2 = lineString.Coordinates[k + 1].Lat
+			y2 = lineString.Coordinates[k + 1].Lng
+			if pointOnSegment(x, y, x1, y1, x2, y2) {
+				onBorderOrPoint = true
+				onSurface = true
+			}
+		}
+	case geojson.MultiLineString:
+		lineStrings, err := g.ToMultiLineString()
+		if err != nil {
+			return false
+		}
+		for j:= 0; j < len(lineStrings.Coordinates); j++ {
+			onBorderOrPoint = false
+			var line = lineStrings.Coordinates[j];
+			for k := 0; !onBorderOrPoint && k < len(line.Coordinates) - 1; k++ {
+				x = cent.Lat
+				y = cent.Lng
+				x1 = line.Coordinates[k].Lat;
+				y1 = line.Coordinates[k].Lng;
+				x2 = line.Coordinates[k + 1].Lat;
+				y2 = line.Coordinates[k + 1].Lng;
+				if pointOnSegment(x, y, x1, y1, x2, y2) {
+					onBorderOrPoint = true
+					onSurface = true
+				}
+			}
+		}
+	case geojson.Polygon:
+		if pointOnPolygon(cent, g) {
+			onSurface = true
+		}
+	case geojson.MultiPolygon:
+		if pointOnPolygon(cent, g) {
+			onSurface = true
+		}
+	}
+	return onSurface || onBorderOrPoint
+}
+
+func pointOnSegment(x float64, y float64, x1 float64, y1 float64, x2 float64, y2 float64) bool {
+	var ab = math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
+	var ap = math.Sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1))
+	var pb = math.Sqrt((x2 - x) * (x2 - x) + (y2 - y) * (y2 - y))
+	return ab == (ap + pb)
+}
+
+func pointOnPolygon(point geometry.Point, g geometry.Geometry) bool {
+	switch g.GeoJSONType {
+	case geojson.Polygon:
+		var coords []geometry.Point
+		polygon, err := g.ToPolygon()
+		if err != nil {
+			return false
+		}
+		for i:=0; i < len(polygon.Coordinates); i++ {
+			coords = append(coords, polygon.Coordinates[i].Coordinates...)
+		}
+		bbox := bboxCalculator(coords)
+
+		if len(bbox) == 0 || !inBBox(point, bbox) {
+			return false
+		}
+		return pointOnMultipolygon(point, []geometry.Polygon{*polygon})
+	case geojson.MultiPolygon:
+		multiPolygon, err := g.ToMultiPolygon()
+		if err != nil {
+			return false
+		}
+		bbox, err := BBox(multiPolygon)
+		if err != nil || len(bbox) == 0 || !inBBox(point, bbox) {
+			return false
+		}
+		return pointOnMultipolygon(point, multiPolygon.Coordinates)
+	}
+
+	return false
+}
+
+func pointOnMultipolygon(point geometry.Point, polys []geometry.Polygon) bool {
+
+	insidePoly := false;
+	for i := 0; i < len(polys) && !insidePoly; i++ {
+		// check if it is in the outer ring first
+		if inRing(point, polys[i].Coordinates[0].Coordinates, false) {
+			inHole := false;
+			// check for the point in any of the holes
+			for j := 1; j < len(polys[i].Coordinates) && !inHole; j++ {
+				if inRing(point, polys[i].Coordinates[j].Coordinates, false) {
+					inHole = true;
+				}
+			}
+			if !inHole {
+				insidePoly = true;
+			}
+		}
+	}
+
+	return insidePoly
+}
+
+func inBBox(point geometry.Point, bbox []float64) bool {
+	return bbox[0] <= point.Lng && bbox[1] <= point.Lat && bbox[2] >= point.Lng && bbox[3] >= point.Lat
+}
+
+func inRing(point geometry.Point, ring []geometry.Point, ignoreBoundary bool) bool {
+	isInside := false
+	// remove last element if they are the same
+	if ring[0].Lat == ring[len(ring) - 1].Lat &&  ring[0].Lng == ring[len(ring) - 1].Lng {
+		ring = ring[:len(ring) - 1]
+	}
+
+	for i, j := 0, len(ring) - 1 ; i < len(ring); i, j = i+1, i {
+		xi := ring[i].Lng
+		yi := ring[i].Lat
+		xj := ring[j].Lng
+		yj := ring[j].Lat
+
+		onBoundary := point.Lat * (xi - xj) + yi * (xj - point.Lng) + yj * (point.Lng - xi) == 0 &&
+			(xi - point.Lng) * (xj - point.Lng) <= 0 &&
+			(yi - point.Lat) * (yj - point.Lat) <= 0
+
+		if onBoundary {
+			return !ignoreBoundary
+		}
+
+		intersect := (yi > point.Lat) != (yj > point.Lat) &&
+			(point.Lng < ((xj - xi) * (point.Lat - yi)) / (yj - yi) + xi)
+
+		if intersect {
+			isInside = !isInside
+		}
+	}
+	return isInside
 }
