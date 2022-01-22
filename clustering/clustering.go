@@ -3,6 +3,7 @@ package clustering
 import (
 	"errors"
 	"fmt"
+	"math"
 	"math/rand"
 	"time"
 
@@ -11,18 +12,15 @@ import (
 	meta "github.com/tomchavakis/turf-go/meta/coordAll"
 )
 
-// Different Distance Approaches
-// Euclidian distance or Haversine Distance
-// TODO: Add Vertical Dimension
-
-// iterations
-
 type Distance string
 
 const (
-	Euclidian Distance = "Euclidian"
+	Euclidean Distance = "Euclidean"
 	Haversine Distance = "Haversine"
 )
+
+// TODO: Add iterations parameter
+// TODO: Impove memoization
 
 // Parameters for the KMean Clustering
 type Parameters struct {
@@ -47,6 +45,28 @@ func KMeans(params Parameters) (map[geometry.Point][]geometry.Point, error) {
 
 }
 
+func initialisation(tmpCluster map[geometry.Point][]geometry.Point, centroids []geometry.Point, ctrIdx map[int]bool, params Parameters) (map[geometry.Point][]geometry.Point, error) {
+	// create a cluster of points based on random centroids
+	for i, p := range params.points {
+		if _, isCentroid := ctrIdx[i]; isCentroid {
+			tmpCluster[p] = tmpCluster[p]
+			continue
+		}
+
+		// get the distance from all the centroids
+		ptCtrsDistances, err := getDistance(p, centroids, params.distanceType)
+		if err != nil {
+			return nil, err
+		}
+
+		// get the minimum distance index for this point
+		minDistanceIdx := minDistanceIdx(ptCtrsDistances)
+		nearestCentroid := centroids[minDistanceIdx]
+		tmpCluster[nearestCentroid] = append(tmpCluster[nearestCentroid], p)
+	}
+	return tmpCluster, nil
+}
+
 func getClusters(params Parameters) (map[geometry.Point][]geometry.Point, error) {
 	ctrIdx, centroids := getCentroids(params)
 
@@ -56,25 +76,13 @@ func getClusters(params Parameters) (map[geometry.Point][]geometry.Point, error)
 	init := false
 	for {
 		tmpMeanCluster := make(map[geometry.Point][]geometry.Point)
+
 		if !init {
-			// create a cluster of points based on random centroids
-			for i, p := range params.points {
-				if _, isCentroid := ctrIdx[i]; isCentroid {
-					tmpCluster[p] = tmpCluster[p]
-					continue
-				}
-
-				// get the distance from all the centroids
-				ptCtrsDistances, err := getDistance(p, centroids, params.distanceType)
-				if err != nil {
-					return nil, err
-				}
-
-				// get the minimum distance index for this point
-				minDistanceIdx := minDistanceIdx(ptCtrsDistances)
-				nearestCentroid := centroids[minDistanceIdx]
-				tmpCluster[nearestCentroid] = append(tmpCluster[nearestCentroid], p)
+			tmpCl, err := initialisation(tmpCluster, centroids, ctrIdx, params)
+			if err != nil {
+				return nil, err
 			}
+			tmpCluster = tmpCl
 		}
 
 		// calculate the mass mean of each cluster
@@ -118,6 +126,14 @@ func getClusters(params Parameters) (map[geometry.Point][]geometry.Point, error)
 	return meanCluster, nil
 }
 
+// TODO: Find the centroid
+
+// https://sites.google.com/site/yangdingqi/home/foursquare-dataset
+// https://desktop.arcgis.com/en/arcmap/latest/tools/spatial-statistics-toolbox/h-how-mean-center-spatial-statistics-works.html
+// https://postgis.net/docs/ST_Centroid.html
+// https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions#st_centroid
+// https://stackoverflow.com/questions/30299267/geometric-median-of-multidimensional-points
+// https://www.pnas.org/content/pnas/97/4/1423.full.pdf
 func meanClusterPoint(cluster []geometry.Point) (*geometry.Point, error) {
 	var pointSet = []geometry.Point{}
 	excludeWrapCoord := true
@@ -171,14 +187,21 @@ func getRandoms(l int, k int) []int {
 	return r.Perm(l)[:k]
 }
 
+func euclideanDistance(lat1 float64, lon1 float64, lat2 float64, lon2 float64) float64 {
+	dist := math.Sqrt(math.Pow(lat2-lat1, 2) + math.Pow(lon2-lon1, 2))
+	return dist
+}
+
 // getDistance returns the distance between the point and the centroids
 func getDistance(p geometry.Point, centroids []geometry.Point, dt Distance) (map[int]float64, error) {
-	//TODO: Implement Euclidian Distance
-	if dt == Euclidian {
-		return nil, nil
-	} else { // haversine distance implemented
-		ds := make(map[int]float64)
+	ds := make(map[int]float64)
 
+	if dt == Euclidean {
+		for i, c := range centroids {
+			d := euclideanDistance(p.Lat, p.Lng, c.Lat, c.Lng)
+			ds[i] = d
+		}
+	} else { // haversine distance implemented
 		for i, c := range centroids {
 			d, err := measurement.Distance(p.Lng, p.Lat, c.Lng, c.Lat, "")
 			if err != nil {
@@ -186,9 +209,8 @@ func getDistance(p geometry.Point, centroids []geometry.Point, dt Distance) (map
 			}
 			ds[i] = d
 		}
-
-		return ds, nil
 	}
+	return ds, nil
 }
 
 func memoizeCluster(key geometry.Point, cluster []geometry.Point) map[string]bool {
@@ -231,7 +253,6 @@ func isEqual(clusterA map[geometry.Point][]geometry.Point, clusterB map[geometry
 				return false
 			}
 		}
-
 	}
 
 	return true

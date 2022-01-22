@@ -7,6 +7,8 @@ import (
 	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
+// SELECT ST_AsText(ST_Centroid('MULTIPOINT ( 10.0 20.0 , 10.0 25.0, 11.0 18.0, 10.0 18.0 )'));
+// SELECT ST_AsText(ST_Centroid('MULTIPOINT ( 10.0 60.0,  11.0 50.0 )'));
 func TestKMeans(t *testing.T) {
 	params := Parameters{
 		k:            2,
