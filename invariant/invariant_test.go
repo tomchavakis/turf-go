@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/tomchavakis/turf-go/geojson"
-	"github.com/tomchavakis/turf-go/geojson/feature"
-	"github.com/tomchavakis/turf-go/geojson/geometry"
+	"github.com/tomchavakis/geojson"
+	"github.com/tomchavakis/geojson/feature"
+	"github.com/tomchavakis/geojson/geometry"
 )
 
 func TestGetCoord(t *testing.T) {

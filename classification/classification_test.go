@@ -3,8 +3,8 @@ package classification
 import (
 	"testing"
 
+	"github.com/tomchavakis/geojson/geometry"
 	"github.com/tomchavakis/turf-go/constants"
-	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
 func TestNearestPoint(t *testing.T) {
