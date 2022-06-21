@@ -3,9 +3,9 @@ package projection
 import (
 	"testing"
 
+	"github.com/tomchavakis/geojson/feature"
+	"github.com/tomchavakis/geojson/geometry"
 	"github.com/tomchavakis/turf-go/assert"
-	"github.com/tomchavakis/turf-go/geojson/feature"
-	"github.com/tomchavakis/turf-go/geojson/geometry"
 	"github.com/tomchavakis/turf-go/utils"
 )
 

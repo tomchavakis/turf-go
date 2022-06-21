@@ -5,11 +5,11 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/tomchavakis/geojson"
+	"github.com/tomchavakis/geojson/feature"
+	"github.com/tomchavakis/geojson/geometry"
 	"github.com/tomchavakis/turf-go/assert"
 	"github.com/tomchavakis/turf-go/constants"
-	"github.com/tomchavakis/turf-go/geojson"
-	"github.com/tomchavakis/turf-go/geojson/feature"
-	"github.com/tomchavakis/turf-go/geojson/geometry"
 	"github.com/tomchavakis/turf-go/internal/common"
 	"github.com/tomchavakis/turf-go/utils"
 )

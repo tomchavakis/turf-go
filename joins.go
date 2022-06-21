@@ -1,8 +1,8 @@
 package turf
 
 import (
-	"github.com/tomchavakis/turf-go/geojson"
-	"github.com/tomchavakis/turf-go/geojson/geometry"
+	"github.com/tomchavakis/geojson"
+	"github.com/tomchavakis/geojson/geometry"
 )
 
 // PointInPolygon takes a Point and a Polygon and determines if the point resides inside the polygon

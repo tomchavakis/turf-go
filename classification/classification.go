@@ -3,7 +3,7 @@ package classification
 import (
 	"math"
 
-	"github.com/tomchavakis/turf-go/geojson/geometry"
+	"github.com/tomchavakis/geojson/geometry"
 	"github.com/tomchavakis/turf-go/measurement"
 )
 

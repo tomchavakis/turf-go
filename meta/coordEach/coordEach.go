@@ -3,9 +3,9 @@ package meta
 import (
 	"errors"
 
-	"github.com/tomchavakis/turf-go/geojson"
-	"github.com/tomchavakis/turf-go/geojson/feature"
-	"github.com/tomchavakis/turf-go/geojson/geometry"
+	"github.com/tomchavakis/geojson"
+	"github.com/tomchavakis/geojson/feature"
+	"github.com/tomchavakis/geojson/geometry"
 )
 
 // CoordEach iterate over coordinates in any Geojson object and apply the callbackFn

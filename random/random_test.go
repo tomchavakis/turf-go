@@ -3,10 +3,10 @@ package random
 import (
 	"testing"
 
+	"github.com/tomchavakis/geojson"
+	"github.com/tomchavakis/geojson/feature"
 	"github.com/tomchavakis/turf-go"
 	"github.com/tomchavakis/turf-go/assert"
-	"github.com/tomchavakis/turf-go/geojson"
-	"github.com/tomchavakis/turf-go/geojson/feature"
 	"github.com/tomchavakis/turf-go/internal/common"
 )
 

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"math"
 
-	"github.com/tomchavakis/turf-go/geojson/geometry"
+	"github.com/tomchavakis/geojson/geometry"
 	meta "github.com/tomchavakis/turf-go/meta/coordEach"
 )
 
