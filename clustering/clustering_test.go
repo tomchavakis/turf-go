@@ -3,8 +3,8 @@ package clustering
 import (
 	"testing"
 
+	"github.com/tomchavakis/geojson/geometry"
 	"github.com/tomchavakis/turf-go/assert"
-	"github.com/tomchavakis/turf-go/geojson/geometry"
 )
 
 // SELECT ST_AsText(ST_Centroid('MULTIPOINT ( 10.0 20.0 , 10.0 25.0, 11.0 18.0, 10.0 18.0 )'));
