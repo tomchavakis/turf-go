@@ -7,6 +7,9 @@ A Go language port of [Turfjs](http://turfjs.org/docs/)
 
 Turf for Go is a ported library in GoLang ported from the Turf.js library.
 
+## Extra modules
+This version also include the clustering module that doesn't exist in the official turf library. 
+
 # Ported functions
 
 ## measurement
@@ -32,6 +35,9 @@ Turf for Go is a ported library in GoLang ported from the Turf.js library.
 - [x] rhumbDistance
 - [ ] square
 - [ ] greatCircle
+
+## clustering
+- [x] kmeans
 
 ## Coordinate Mutation
 - [ ] cleanCoords

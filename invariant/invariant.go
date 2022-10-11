@@ -12,37 +12,36 @@ import (
 // GetCoord unwrap a coordinate from a point feature, geometry or a single coordinate.
 // coord is a GeoJSON point or an Array of numbers.
 //
-//  Examples:
+//	Examples:
 //
 // Point Example:
 //
-//  p := &geometry.Point{
-//	   Lat: 34.6,
-//	   Lng: 23.5,
-//  }
-//  coord, err := GetCoord(p)
+//	 p := &geometry.Point{
+//		   Lat: 34.6,
+//		   Lng: 23.5,
+//	 }
+//	 coord, err := GetCoord(p)
 //
-//  Array Example
+//	 Array Example
 //
-//  p := []float64{
-// 	  23.5,
-// 	  34.6,
-//  }
-//  coord, err := GetCoord(p)
+//	 p := []float64{
+//		  23.5,
+//		  34.6,
+//	 }
+//	 coord, err := GetCoord(p)
 //
-//  Feature Example
+//	 Feature Example
 //
-//  p := &feature.Feature{
-// 	   Type:       "Feature",
-// 	   Properties: map[string]interface{}{},
-// 	   Bbox:       []float64{},
-// 	   Geometry: geometry.Geometry{
-// 		   GeoJSONType: "Point",
-// 		   Coordinates: []float64{44.34, 23.52},
-// 	   },
-//  }
-//  coord, err := GetCoord(p)
-//
+//	 p := &feature.Feature{
+//		   Type:       "Feature",
+//		   Properties: map[string]interface{}{},
+//		   Bbox:       []float64{},
+//		   Geometry: geometry.Geometry{
+//			   GeoJSONType: "Point",
+//			   Coordinates: []float64{44.34, 23.52},
+//		   },
+//	 }
+//	 coord, err := GetCoord(p)
 func GetCoord(coord interface{}) ([]float64, error) {
 	if coord == nil {
 		return nil, errors.New("coord is required")
@@ -74,14 +73,13 @@ func GetCoord(coord interface{}) ([]float64, error) {
 //
 // Example:
 //
-// coords: &geometry.Point{
-//	  Lat: 23.52,
-//	  Lng: 44.34,
-//  },
+//	coords: &geometry.Point{
+//		  Lat: 23.52,
+//		  Lng: 44.34,
+//	 },
 //
 // coords,err := GetCoords(coords)
 // = []float64{44.34, 23.52}
-//
 func GetCoords(coords interface{}) (interface{}, error) {
 	if coords == nil {
 		return nil, errors.New("coord is required")
@@ -196,7 +194,6 @@ func GetCoords(coords interface{}) (interface{}, error) {
 // fp, err := feature.FromJSON("{ \"type\": \"Feature\", \"properties\": {}, \"geometry\": { \"type\": \"Point\", \"coordinates\": [102, 0.5] } }")
 // result := GetType(fp)
 // ="Point"
-//
 func GetType(geojson interface{}) string {
 	switch gtp := geojson.(type) {
 	case *feature.Feature:
