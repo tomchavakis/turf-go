@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"io/ioutil"
+	"os"
 	"reflect"
 )
 
@@ -9,7 +9,7 @@ import (
 func LoadJSONFixture(filename string) (string, error) {
 	filepath := filename
 
-	b, err := ioutil.ReadFile(filepath)
+	b, err := os.ReadFile(filepath)
 	if err != nil {
 		return "", err
 	}

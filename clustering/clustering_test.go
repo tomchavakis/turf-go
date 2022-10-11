@@ -1,6 +1,7 @@
 package clustering
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/tomchavakis/geojson/geometry"
@@ -9,6 +10,51 @@ import (
 
 // SELECT ST_AsText(ST_Centroid('MULTIPOINT ( 10.0 20.0 , 10.0 25.0, 11.0 18.0, 10.0 18.0 )'));
 // SELECT ST_AsText(ST_Centroid('MULTIPOINT ( 10.0 60.0,  11.0 50.0 )'));
+
+func TestKMeansClusterLength(t *testing.T) {
+	params := Parameters{
+		k: 5,
+		points: []geometry.Point{{
+			Lat: 10.0,
+			Lng: 1.0,
+		}, {
+			Lat: 11.0,
+			Lng: 1.0,
+		}, {
+			Lat: 12.0,
+			Lng: 1.0,
+		},
+		},
+		distanceType: Haversine,
+	}
+
+	res, err := KMeans(params)
+	assert.Equal(t, err, fmt.Errorf("clusters can't be more than the length of the points"))
+	assert.Nil(t, res)
+}
+
+func TestKMeansLeastCentroid(t *testing.T) {
+	params := Parameters{
+		k: 1,
+		points: []geometry.Point{{
+			Lat: 10.0,
+			Lng: 1.0,
+		}, {
+			Lat: 11.0,
+			Lng: 1.0,
+		}, {
+			Lat: 12.0,
+			Lng: 1.0,
+		},
+		},
+		distanceType: Haversine,
+	}
+
+	res, err := KMeans(params)
+	assert.Equal(t, err, fmt.Errorf("at least 2 centroids required"))
+	assert.Nil(t, res)
+}
+
 func TestKMeans(t *testing.T) {
 	params := Parameters{
 		k:            2,

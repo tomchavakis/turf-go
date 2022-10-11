@@ -37,7 +37,8 @@ type PolygonOptions struct {
 // Position returns a random position within a bounding box
 //
 // Examples:
-// 	random.Position(
+//
+//	random.Position(
 //		geojson.BBOX{
 //			West:  -180,
 //			South: -90,
@@ -55,7 +56,8 @@ func Position(bbox geojson.BBOX) geometry.Position {
 // count is how many geometries will be generated. default = 1
 //
 // Examples:
-// 	random.Point(0,
+//
+//	random.Point(0,
 //		geojson.BBOX{
 //			West:  -180,
 //			South: -90,
@@ -63,7 +65,7 @@ func Position(bbox geojson.BBOX) geometry.Position {
 //			North: 90,
 //		})
 //
-// 	random.Point(10,
+//	random.Point(10,
 //		geojson.BBOX{
 //			West:  -180,
 //			South: -90,
@@ -102,17 +104,18 @@ func Point(count int, bbox geojson.BBOX) (*feature.Collection, error) {
 // count=1 how many geometries will be generated
 //
 // Examples:
-//   random.LineString(10,LineStringOptions{
-//		BBox:geojson.BBOX{
-//			West:  -180,
-//			South: -90,
-//			East:  180,
-//			North: 90,
-//		},
-//		NumVertices: nil,
-//		MaxLength:   nil,
-//		MaxRotation: nil,
-//	})
+//
+//	  random.LineString(10,LineStringOptions{
+//			BBox:geojson.BBOX{
+//				West:  -180,
+//				South: -90,
+//				East:  180,
+//				North: 90,
+//			},
+//			NumVertices: nil,
+//			MaxLength:   nil,
+//			MaxRotation: nil,
+//		})
 func LineString(count int, options LineStringOptions) (*feature.Collection, error) {
 	if count == 0 {
 		count = 1
@@ -174,7 +177,8 @@ func LineString(count int, options LineStringOptions) (*feature.Collection, erro
 // count=1 how many geometries will be generated
 //
 // Examples:
-// 	random.Polygon(10, PolygonOptions{
+//
+//	random.Polygon(10, PolygonOptions{
 //		BBox:geojson.BBOX{
 //			West:  -180,
 //			South: -90,

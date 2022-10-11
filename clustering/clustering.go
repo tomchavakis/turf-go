@@ -19,9 +19,6 @@ const (
 	Haversine Distance = "Haversine"
 )
 
-// TODO: Add iterations parameter
-// TODO: Impove memoization
-
 // Parameters for the KMean Clustering
 type Parameters struct {
 	k            int              // number of clusters
@@ -49,7 +46,7 @@ func initialisation(tmpCluster map[geometry.Point][]geometry.Point, centroids []
 	// create a cluster of points based on random centroids
 	for i, p := range params.points {
 		if _, isCentroid := ctrIdx[i]; isCentroid {
-			tmpCluster[p] = tmpCluster[p]
+			//tmpCluster[p] = tmpCluster[p]
 			continue
 		}
 

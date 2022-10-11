@@ -72,14 +72,14 @@ func isNil(object interface{}) bool {
 
 // Nil asserts that the specified object is nil.
 //
-//    assert.Nil(t, err)
+//	assert.Nil(t, err)
 func Nil(t *testing.T, object interface{}) bool {
 	return isNil(object)
 }
 
 // NotNil asserts that the specified object is not nil.
 //
-//    assert.NotNil(t, err)
+//	assert.NotNil(t, err)
 func NotNil(t *testing.T, object interface{}) bool {
 	return !isNil(object)
 }
