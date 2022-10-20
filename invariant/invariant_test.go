@@ -767,3 +767,50 @@ func TestGetType(t *testing.T) {
 		})
 	}
 }
+
+// func TestGetGeom(t *testing.T) {
+// 	type args struct {
+// 		geojson interface{}
+// 	}
+// 	fp, _ := feature.FromJSON("{ \"type\": \"Feature\", \"properties\": {}, \"geometry\": { \"type\": \"Point\", \"coordinates\": [102, 0.5] } }")
+// 	ln, _ := geometry.FromJSON("{ \"type\": \"Feature\", \"properties\": {}, \"geometry\": { \"type\": \"LineString\", \"coordinates\": [ [-20.39062500000365, 33.72434000000235], [-3.5156249999990803, 47.51720099999992], [14.062499999996321, 16.97274100000141] ] } }")
+
+// 	tests := map[string]struct {
+// 		args args
+// 		want *geometry.Geometry
+// 	}{
+// 		"error - required coords": {
+// 			args: args{
+// 				geojson: "",
+// 			},
+// 			want: nil,
+// 		},
+// 		"feature - point": {
+// 			args: args{
+// 				geojson: fp,
+// 			},
+// 			want: &geometry.Geometry{
+// 				GeoJSONType: "Point",
+// 				Coordinates: []interface{}{float64(102), float64(0.5)},
+// 			},
+// 		},
+// 		"geometry - lineString": {
+// 			args: args{
+// 				geojson: ln,
+// 			},
+// 			want: &geometry.Geometry{
+// 				GeoJSONType: "Point",
+// 				Coordinates: []interface{}{float64(102), float64(0.5)},
+// 			},
+// 		},
+// 	}
+// 	for name, tt := range tests {
+// 		t.Run(name, func(t *testing.T) {
+// 			geo := GetGeom(tt.args.geojson)
+
+// 			if got := geo; !reflect.DeepEqual(got, tt.want) {
+// 				t.Errorf("TestGetCoord() = %v, want %v", got, tt.want)
+// 			}
+// 		})
+// 	}
+// }

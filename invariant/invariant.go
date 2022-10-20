@@ -207,3 +207,14 @@ func GetType(geojson interface{}) string {
 	}
 	return "invalid"
 }
+
+// GetGeom returns the Geometry from Feature or Geometry Object
+func GetGeom(geojson interface{}) *geometry.Geometry {
+	switch gtp := geojson.(type) {
+	case *feature.Feature:
+		return &gtp.Geometry
+	case *geometry.Geometry:
+		return gtp
+	}
+	return nil
+}
