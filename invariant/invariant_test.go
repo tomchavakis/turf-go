@@ -10,6 +10,80 @@ import (
 	"github.com/tomchavakis/geojson/geometry"
 )
 
+func TestGetGeom(t *testing.T){
+    type args struct {
+        coords interface{}
+    }
+    tests := map[string]struct {
+        args args
+        want *geometry.Geometry
+        wantErr bool
+        err error
+    }{
+        "error - point": {
+            args: args{
+                coords: &geometry.Point{
+                    Lat: 23.52,
+                    Lng: 44.34,
+                    },
+            },
+            wantErr: true,
+            err: errors.New("invalid type"),
+        },
+        "geometry - point": {
+          args: args{
+              coords: &geometry.Geometry{
+                GeoJSONType: geojson.Point,
+                Coordinates: []float64{44.34, 23.52},
+              },
+          },
+          wantErr: false,
+          want: &geometry.Geometry{
+              GeoJSONType: geojson.Point,
+              Coordinates: []float64{44.34, 23.52},
+              },
+        },
+        "feature - point": {
+            args: args{
+				coords: &feature.Feature{
+					ID:         "",
+					Type:       geojson.Feature,
+					Properties: map[string]interface{}{},
+					Bbox:       []float64{},
+					Geometry: geometry.Geometry{
+						GeoJSONType: geojson.Polygon,
+						Coordinates: [][][]float64{
+							{{2, 1}, {4, 3}}, {{6, 5}, {8, 7}},
+						},
+					},
+				},
+                },
+                wantErr: false,
+                want: &geometry.Geometry{
+                GeoJSONType: geojson.Polygon,
+                Coordinates: [][][]float64{
+                    {{2, 1}, {4, 3}}, {{6, 5}, {8, 7}},
+                    },
+                },
+        },
+    }
+    for name, tt := range tests {
+        t.Run(name, func(t *testing.T){
+        geom,err := GetGeom(tt.args.coords)
+        if (err != nil) && tt.wantErr {
+            if err.Error() != tt.err.Error() {
+                t.Errorf("TestGetGeom() error = %v, wantErr %v", err.Error(), tt.err.Error())
+                return
+            }
+        }
+
+        if got := geom; !reflect.DeepEqual(got, tt.want) {
+            t.Errorf("TestGetGeom() = %v, want %v", got, tt.want)
+        }
+        })
+    }
+}
+
 func TestGetCoord(t *testing.T) {
 	type args struct {
 		coords interface{}
