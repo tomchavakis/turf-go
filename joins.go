@@ -10,7 +10,7 @@ func PointInPolygon(point geometry.Point, polygon geometry.Polygon) (bool, error
 
 	pArr := []geometry.Polygon{}
 	pArr = append(pArr, polygon)
-
+    
 	mp, err := geometry.NewMultiPolygon(pArr)
 	if err != nil {
 		return false, err
