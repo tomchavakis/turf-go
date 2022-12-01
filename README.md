@@ -138,7 +138,7 @@ This version also include the clustering module that doesn't exist in the offici
 - [ ] flattenReduce
 - [x] getCoord
 - [x] getCoords
-- [ ] getGeom
+- [x] getGeom
 - [x] getType
 - [ ] geomEach
 - [ ] geomReduce

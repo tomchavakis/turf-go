@@ -207,3 +207,21 @@ func GetType(geojson interface{}) string {
 	}
 	return "invalid"
 }
+
+
+// GetGeom gets the geometry from Feature or Geometry Object
+//
+// Examples:
+//
+// fp, err := feature.FromJSON("{ \"type\": \"Feature\", \"properties\": {}, \"geometry\": { \"type\": \"Point\", \"coordinates\": [102, 0.5] } }")
+// result := GetGeom(fp)
+// = {"geometry\": { \"type\": \"Point\", \"coordinates\": [102, 0.5] }
+func GetGeom(geojson interface{}) (*geometry.Geometry, error) {
+    switch gtp := geojson.(type) {
+    case *feature.Feature:
+        return &gtp.Geometry, nil
+    case *geometry.Geometry:
+        return gtp, nil
+    }
+    return nil, errors.New("invalid type")
+}
